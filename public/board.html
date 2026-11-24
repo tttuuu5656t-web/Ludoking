@@ -4,228 +4,172 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LudoKing</title>
+<title>LudoKing - Game</title>
 
 <style>
-*{box-sizing:border-box}
-
-body{
- margin:0;
- padding:15px;
- min-height:100vh;
- font-family:Arial,sans-serif;
- color:white;
- background:radial-gradient(circle at top,#344c79,#101426 65%);
+* {
+    box-sizing: border-box;
 }
 
-header{
- display:flex;
- justify-content:space-between;
- align-items:center;
- max-width:520px;
- margin:10px auto 25px;
+body {
+    margin: 0;
+    background: #101522;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
 }
 
-.logo{
- font-size:27px;
- font-weight:900;
- color:#ffd34d;
- text-shadow:0 3px 12px #ffb00066;
+header {
+    padding: 18px;
+    background: #192337;
+    font-size: 25px;
+    font-weight: bold;
+    color: #ffd34e;
 }
 
-.status{
- background:#173c32;
- color:#68ffb0;
- padding:8px 13px;
- border-radius:20px;
- font-size:12px;
+.game {
+    max-width: 500px;
+    margin: 25px auto;
+    padding: 15px;
 }
 
-h2{
- text-align:center;
- color:#ffe28a;
- margin-bottom:18px;
+.board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    background: #26334a;
+    padding: 10px;
+    border-radius: 15px;
 }
 
-.board{
- width:min(94vw,480px);
- aspect-ratio:1;
- margin:auto;
- padding:5px;
- display:grid;
- grid-template-columns:repeat(15,1fr);
- grid-template-rows:repeat(15,1fr);
- background:#f8f8f8;
- border:5px solid #d9c28c;
- border-radius:12px;
- box-shadow:0 15px 35px #0009, inset 0 0 8px #555;
- overflow:hidden;
+.home {
+    height: 145px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 20px;
+    font-weight: bold;
 }
 
-.home{
- display:flex;
- align-items:center;
- justify-content:center;
- padding:10%;
+.red { background: #e84141; }
+.green { background: #20a568; }
+.yellow { background: #e5b832; color: #222; }
+.blue { background: #347de0; }
+
+.tokens {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 15px;
 }
 
-.red{grid-area:1/1/7/7;background:#ed3d43}
-.green{grid-area:1/10/7/16;background:#16a66a}
-.yellow{grid-area:10/1/16/7;background:#f5c52d}
-.blue{grid-area:10/10/16/16;background:#2879e8}
-
-.inner{
- width:100%;
- height:100%;
- background:#fff;
- border-radius:12px;
- display:grid;
- grid-template-columns:1fr 1fr;
- grid-template-rows:1fr 1fr;
- gap:12%;
- padding:13%;
- box-shadow:inset 0 2px 8px #0002;
+.token {
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    margin: auto;
+    border: 3px solid white;
 }
 
-.token{
- border-radius:50%;
- border:4px solid #fff;
- box-shadow:0 3px 7px #0007,inset 0 2px 5px #ffffff80;
+.center {
+    margin-top: 12px;
+    padding: 18px;
+    background: #26334a;
+    border-radius: 12px;
 }
 
-.red-token{background:linear-gradient(145deg,#ff7777,#bd101c)}
-.green-token{background:linear-gradient(145deg,#64f2ae,#087d45)}
-.yellow-token{background:linear-gradient(145deg,#fff27a,#d69a00)}
-.blue-token{background:linear-gradient(145deg,#75c4ff,#0752bd)}
-
-.center{
- grid-area:7/7/10/10;
- background:conic-gradient(
- #16a66a 0deg 90deg,
- #2879e8 90deg 180deg,
- #f5c52d 180deg 270deg,
- #ed3d43 270deg 360deg
- );
- display:grid;
- place-items:center;
- font-size:clamp(20px,6vw,38px);
+#dice {
+    font-size: 65px;
+    margin: 10px;
 }
 
-.cell{
- background:white;
- border:1px solid #c9c9c9;
+#turn {
+    font-size: 19px;
+    color: #ffd34e;
+    font-weight: bold;
 }
 
-.players{
- max-width:480px;
- margin:22px auto;
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:10px;
+button {
+    border: none;
+    padding: 14px 25px;
+    border-radius: 10px;
+    background: #ffd34e;
+    color: #171717;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 6px;
 }
 
-.player{
- padding:12px;
- border-radius:10px;
- text-align:center;
- font-weight:bold;
- box-shadow:0 4px 12px #0004;
-}
-
-.player.red{background:#ed3d43}
-.player.green{background:#16a66a}
-.player.yellow{background:#c69b00}
-.player.blue{background:#2879e8}
-
-.dice-box{
- max-width:480px;
- margin:20px auto;
- padding:20px;
- text-align:center;
- background:#ffffff12;
- border:1px solid #ffffff25;
- border-radius:15px;
-}
-
-.dice{
- font-size:65px;
- margin:10px;
-}
-
-footer{
- text-align:center;
- color:#9eabc7;
- font-size:12px;
- margin:25px;
+button:active {
+    transform: scale(.96);
 }
 </style>
 </head>
 
 <body>
 
-<header>
- <div class="logo">🎲 LudoKing</div>
- <div class="status">● GAME READY</div>
-</header>
+<header>🎲 LudoKing</header>
 
-<h2>Classic Ludo Board</h2>
+<div class="game">
 
-<div class="board">
+    <div class="board">
 
- <div class="home red">
-  <div class="inner">
-   <div class="token red-token"></div>
-   <div class="token red-token"></div>
-   <div class="token red-token"></div>
-   <div class="token red-token"></div>
-  </div>
- </div>
+        <div class="home red">
+            RED
+            <div class="tokens">
+                <div class="token"></div>
+                <div class="token"></div>
+                <div class="token"></div>
+                <div class="token"></div>
+            </div>
+        </div>
 
- <div class="home green">
-  <div class="inner">
-   <div class="token green-token"></div>
-   <div class="token green-token"></div>
-   <div class="token green-token"></div>
-   <div class="token green-token"></div>
-  </div>
- </div>
+        <div class="home green">
+            GREEN
+            <div class="tokens">
+                <div class="token"></div>
+                <div class="token"></div>
+                <div class="token"></div>
+                <div class="token"></div>
+            </div>
+        </div>
 
- <div class="home yellow">
-  <div class="inner">
-   <div class="token yellow-token"></div>
-   <div class="token yellow-token"></div>
-   <div class="token yellow-token"></div>
-   <div class="token yellow-token"></div>
-  </div>
- </div>
+        <div class="home blue">
+            BLUE
+            <div class="tokens">
+                <div class="token"></div>
+                <div class="token"></div>
+                <div class="token"></div>
+                <div class="token"></div>
+            </div>
+        </div>
 
- <div class="home blue">
-  <div class="inner">
-   <div class="token blue-token"></div>
-   <div class="token blue-token"></div>
-   <div class="token blue-token"></div>
-   <div class="token blue-token"></div>
-  </div>
- </div>
+        <div class="home yellow">
+            YELLOW
+            <div class="tokens">
+                <div class="token"></div>
+                <div class="token"></div>
+                <div class="token"></div>
+                <div class="token"></div>
+            </div>
+        </div>
 
- <div class="center">🏆</div>
+    </div>
+
+    <div class="center">
+        <div id="dice">⚀</div>
+        <p id="turn">Red ki baari</p>
+
+        <button onclick="rollDice()">🎲 Roll Dice</button>
+        <button onclick="nextTurn()">Next Turn</button>
+    </div>
 
 </div>
 
-<div class="players">
- <div class="player red">🔴 RED</div>
- <div class="player green">🟢 GREEN</div>
- <div class="player yellow">🟡 YELLOW</div>
- <div class="player blue">🔵 BLUE</div>
-</div>
-
-<div class="dice-box">
- <h3>Dice</h3>
- <div class="dice">🎲</div>
- <p>Waiting for players...</p>
-</div>
-
-<footer>© LudoKing</footer>
+<script src="game.js"></script>
 
 </body>
 </html>
