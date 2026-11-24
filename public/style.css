@@ -1,0 +1,233 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    color: #fff;
+    background:
+        radial-gradient(circle at top, #344b79, transparent 55%),
+        linear-gradient(145deg, #10172c, #080d19);
+}
+
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    background: #ffffff0d;
+    border-bottom: 1px solid #ffffff20;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 900;
+    color: #ffd34d;
+}
+
+.online-status {
+    color: #b7f7c5;
+    font-size: 13px;
+}
+
+.dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    background: #35e47b;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.container {
+    width: 100%;
+    max-width: 520px;
+    padding: 20px 16px;
+    margin: auto;
+}
+
+.welcome {
+    text-align: center;
+    padding: 35px 10px 25px;
+}
+
+.welcome h1 {
+    font-size: 29px;
+    color: #ffd34d;
+    margin-bottom: 10px;
+}
+
+.welcome p {
+    color: #c1cbe0;
+    font-size: 15px;
+}
+
+.game-card,
+.room-card {
+    background: linear-gradient(145deg, #26385e, #172541);
+    border: 1px solid #ffffff25;
+    border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: 0 15px 35px #0005;
+}
+
+.game-card h2,
+.room-card h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    color: #ffd34d;
+}
+
+label {
+    display: block;
+    margin-bottom: 9px;
+    color: #dce6fa;
+    font-size: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #647da8;
+    border-radius: 11px;
+    background: #101b32;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #ffd34d;
+    box-shadow: 0 0 0 2px #ffd34d30;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(100deg, #ffdb55, #ffad27);
+    color: #20202a;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 12px;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+button:disabled {
+    opacity: 0.6;
+}
+
+.join-btn {
+    background: linear-gradient(100deg, #48d5ff, #3787ff);
+    color: white;
+}
+
+.divider {
+    text-align: center;
+    margin: 12px 0;
+    color: #aabbd9;
+    font-size: 12px;
+}
+
+#message {
+    text-align: center;
+    color: #c9d5ed;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 8px;
+}
+
+.hidden {
+    display: none;
+}
+
+.room-card {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.room-code {
+    margin: 12px 0 22px;
+    padding: 14px;
+    background: #101b32;
+    border-radius: 10px;
+    color: #ffd34d;
+    font-size: 25px;
+    font-weight: bold;
+    letter-spacing: 5px;
+}
+
+#playerList {
+    list-style: none;
+    margin-top: 12px;
+    text-align: left;
+}
+
+#playerList li {
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #ffffff12;
+    border-radius: 9px;
+}
+
+.waiting-text {
+    color: #b9c9e5;
+    font-size: 13px;
+    margin-top: 15px;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.feature {
+    text-align: center;
+    padding: 17px 5px;
+    background: #ffffff0d;
+    border: 1px solid #ffffff15;
+    border-radius: 13px;
+}
+
+.feature span {
+    font-size: 28px;
+}
+
+.feature h3 {
+    font-size: 13px;
+    margin: 9px 0 5px;
+}
+
+.feature p {
+    color: #aebdd8;
+    font-size: 10px;
+}
+
+footer {
+    text-align: center;
+    padding: 25px 10px;
+    color: #8192b2;
+    font-size: 12px;
+}
+
+@media (max-width: 360px) {
+    .welcome h1 {
+        font-size: 24px;
+    }
+
+    .features {
+        gap: 6px;
+    }
+}
