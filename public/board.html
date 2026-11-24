@@ -2,61 +2,230 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LudoKing Board</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LudoKing</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ padding:15px;
+ min-height:100vh;
+ font-family:Arial,sans-serif;
+ color:white;
+ background:radial-gradient(circle at top,#344c79,#101426 65%);
+}
+
+header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ max-width:520px;
+ margin:10px auto 25px;
+}
+
+.logo{
+ font-size:27px;
+ font-weight:900;
+ color:#ffd34d;
+ text-shadow:0 3px 12px #ffb00066;
+}
+
+.status{
+ background:#173c32;
+ color:#68ffb0;
+ padding:8px 13px;
+ border-radius:20px;
+ font-size:12px;
+}
+
+h2{
+ text-align:center;
+ color:#ffe28a;
+ margin-bottom:18px;
+}
+
+.board{
+ width:min(94vw,480px);
+ aspect-ratio:1;
+ margin:auto;
+ padding:5px;
+ display:grid;
+ grid-template-columns:repeat(15,1fr);
+ grid-template-rows:repeat(15,1fr);
+ background:#f8f8f8;
+ border:5px solid #d9c28c;
+ border-radius:12px;
+ box-shadow:0 15px 35px #0009, inset 0 0 8px #555;
+ overflow:hidden;
+}
+
+.home{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ padding:10%;
+}
+
+.red{grid-area:1/1/7/7;background:#ed3d43}
+.green{grid-area:1/10/7/16;background:#16a66a}
+.yellow{grid-area:10/1/16/7;background:#f5c52d}
+.blue{grid-area:10/10/16/16;background:#2879e8}
+
+.inner{
+ width:100%;
+ height:100%;
+ background:#fff;
+ border-radius:12px;
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ grid-template-rows:1fr 1fr;
+ gap:12%;
+ padding:13%;
+ box-shadow:inset 0 2px 8px #0002;
+}
+
+.token{
+ border-radius:50%;
+ border:4px solid #fff;
+ box-shadow:0 3px 7px #0007,inset 0 2px 5px #ffffff80;
+}
+
+.red-token{background:linear-gradient(145deg,#ff7777,#bd101c)}
+.green-token{background:linear-gradient(145deg,#64f2ae,#087d45)}
+.yellow-token{background:linear-gradient(145deg,#fff27a,#d69a00)}
+.blue-token{background:linear-gradient(145deg,#75c4ff,#0752bd)}
+
+.center{
+ grid-area:7/7/10/10;
+ background:conic-gradient(
+ #16a66a 0deg 90deg,
+ #2879e8 90deg 180deg,
+ #f5c52d 180deg 270deg,
+ #ed3d43 270deg 360deg
+ );
+ display:grid;
+ place-items:center;
+ font-size:clamp(20px,6vw,38px);
+}
+
+.cell{
+ background:white;
+ border:1px solid #c9c9c9;
+}
+
+.players{
+ max-width:480px;
+ margin:22px auto;
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
+}
+
+.player{
+ padding:12px;
+ border-radius:10px;
+ text-align:center;
+ font-weight:bold;
+ box-shadow:0 4px 12px #0004;
+}
+
+.player.red{background:#ed3d43}
+.player.green{background:#16a66a}
+.player.yellow{background:#c69b00}
+.player.blue{background:#2879e8}
+
+.dice-box{
+ max-width:480px;
+ margin:20px auto;
+ padding:20px;
+ text-align:center;
+ background:#ffffff12;
+ border:1px solid #ffffff25;
+ border-radius:15px;
+}
+
+.dice{
+ font-size:65px;
+ margin:10px;
+}
+
+footer{
+ text-align:center;
+ color:#9eabc7;
+ font-size:12px;
+ margin:25px;
+}
+</style>
 </head>
+
 <body>
 
-    <main class="container">
-        <h1 style="text-align:center;color:#ffd34d;margin:20px">
-            🎲 LudoKing
-        </h1>
+<header>
+ <div class="logo">🎲 LudoKing</div>
+ <div class="status">● GAME READY</div>
+</header>
 
-        <div class="ludo-board">
+<h2>Classic Ludo Board</h2>
 
-            <div class="home red">
-                <div class="tokens">
-                    <span>🔴</span><span>🔴</span>
-                    <span>🔴</span><span>🔴</span>
-                </div>
-            </div>
+<div class="board">
 
-            <div class="home green">
-                <div class="tokens">
-                    <span>🟢</span><span>🟢</span>
-                    <span>🟢</span><span>🟢</span>
-                </div>
-            </div>
+ <div class="home red">
+  <div class="inner">
+   <div class="token red-token"></div>
+   <div class="token red-token"></div>
+   <div class="token red-token"></div>
+   <div class="token red-token"></div>
+  </div>
+ </div>
 
-            <div class="center">
-                <div class="center-text">🏆</div>
-            </div>
+ <div class="home green">
+  <div class="inner">
+   <div class="token green-token"></div>
+   <div class="token green-token"></div>
+   <div class="token green-token"></div>
+   <div class="token green-token"></div>
+  </div>
+ </div>
 
-            <div class="home yellow">
-                <div class="tokens">
-                    <span>🟡</span><span>🟡</span>
-                    <span>🟡</span><span>🟡</span>
-                </div>
-            </div>
+ <div class="home yellow">
+  <div class="inner">
+   <div class="token yellow-token"></div>
+   <div class="token yellow-token"></div>
+   <div class="token yellow-token"></div>
+   <div class="token yellow-token"></div>
+  </div>
+ </div>
 
-            <div class="home blue">
-                <div class="tokens">
-                    <span>🔵</span><span>🔵</span>
-                    <span>🔵</span><span>🔵</span>
-                </div>
-            </div>
+ <div class="home blue">
+  <div class="inner">
+   <div class="token blue-token"></div>
+   <div class="token blue-token"></div>
+   <div class="token blue-token"></div>
+   <div class="token blue-token"></div>
+  </div>
+ </div>
 
-        </div>
+ <div class="center">🏆</div>
 
-        <div class="dice-section">
-            <h2>Dice</h2>
-            <div class="dice">🎲</div>
-            <p>Waiting for game to start...</p>
-        </div>
+</div>
 
-    </main>
+<div class="players">
+ <div class="player red">🔴 RED</div>
+ <div class="player green">🟢 GREEN</div>
+ <div class="player yellow">🟡 YELLOW</div>
+ <div class="player blue">🔵 BLUE</div>
+</div>
+
+<div class="dice-box">
+ <h3>Dice</h3>
+ <div class="dice">🎲</div>
+ <p>Waiting for players...</p>
+</div>
+
+<footer>© LudoKing</footer>
 
 </body>
 </html>
