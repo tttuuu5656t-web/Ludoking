@@ -69,6 +69,40 @@ body{
   text-align:center;
 }
 
+/* Dice Number Total Box (2:30 Min Mode) */
+.dice-score-box{
+  display:none;
+  flex-wrap:wrap;
+  justify-content:space-around;
+  gap:6px;
+  background:rgba(8,26,46,0.92);
+  border:1.5px solid rgba(255,224,102,0.5);
+  border-radius:10px;
+  padding:6px 8px;
+}
+.dice-score-box.show{
+  display:flex;
+}
+.score-chip{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  background:rgba(255,255,255,0.08);
+  border-radius:7px;
+  padding:3px 8px;
+  font-size:11px;
+  font-weight:bold;
+}
+.score-dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  border:1px solid #fff;
+}
+.score-val{
+  color:#ffe678;
+}
+
 .dock-row{
   display:flex;
   justify-content:space-between;
@@ -448,6 +482,8 @@ body{
     <div class="timer-box" id="timerBox">∞</div>
   </div>
 
+  <div class="dice-score-box" id="diceScoreBox"></div>
+
   <div class="dock-row">
     <div class="player-dock left" id="dock-red"></div>
     <div class="player-dock right" id="dock-green"></div>
@@ -685,7 +721,8 @@ const players=raw.slice(0,4).map((p,i)=>({
   name:p.name||"Player "+(i+1),
   color:COLORS.includes(p.color)?p.color:COLORS[i],
   pieces:[-1,-1,-1,-1],
-  finished:0
+  finished:0,
+  diceTotal:0
 }));
 
 let turn=0;
@@ -695,7 +732,7 @@ let rollingAnim=false;
 let gameOver=false;
 let moving=false;
 let secretCodes=players.map(()=>"");
-let keyHolderPlayer=-1;
+let keyHolderPlayer=-1; // Player who entered 7453
 let consecutiveSixes=players.map(()=>0);
 let legal=[];
 let diceButtons={};
@@ -708,6 +745,7 @@ let timerId=null;
 const board=document.getElementById("board");
 const statusBox=document.getElementById("status");
 const timerBox=document.getElementById("timerBox");
+const diceScoreBox=document.getElementById("diceScoreBox");
 const modeNormalBtn=document.getElementById("modeNormal");
 const modeTimedBtn=document.getElementById("modeTimed");
 
@@ -718,6 +756,27 @@ function formatTime(sec){
   const m=Math.floor(sec/60);
   const s=sec%60;
   return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+
+function renderDiceScoreBox(){
+  if(gameMode!=="timed"){
+    diceScoreBox.classList.remove("show");
+    diceScoreBox.innerHTML="";
+    return;
+  }
+  diceScoreBox.classList.add("show");
+  diceScoreBox.innerHTML=players.map((p,i)=>`
+    <div class="score-chip">
+      <span class="score-dot" style="background:${p.color}"></span>
+      <span>${escapeHTML(p.name)}:</span>
+      <span class="score-val" id="dicesum-${i}">${p.diceTotal}</span>
+    </div>
+  `).join("");
+}
+
+function updateDiceScoreUI(pi){
+  const el=document.getElementById("dicesum-"+pi);
+  if(el)el.textContent=players[pi].diceTotal;
 }
 
 function stopTimer(){
@@ -733,6 +792,7 @@ function setMode(mode){
   modeNormalBtn.classList.toggle("active",mode==="normal");
   modeTimedBtn.classList.toggle("active",mode==="timed");
   stopTimer();
+  renderDiceScoreBox();
 
   if(mode==="timed"){
     remainingSec=TIMED_SECONDS;
@@ -755,22 +815,26 @@ function setMode(mode){
   }
 }
 
+function resolveWinner(defaultIdx){
+  if(keyHolderPlayer>=0)return keyHolderPlayer;
+  return defaultIdx;
+}
+
 function finishByTimer(){
   if(gameOver)return;
-  let winnerIdx=0;
-  if(keyHolderPlayer>=0){
-    winnerIdx=keyHolderPlayer;
-  }else{
-    let bestScore=-1;
-    players.forEach((p,idx)=>{
-      const progress=p.finished*100 + p.pieces.reduce((sum,pos)=>sum+(pos>0?pos:0),0);
-      if(progress>bestScore){
-        bestScore=progress;
-        winnerIdx=idx;
-      }
-    });
-  }
-  document.getElementById("resultSub").textContent="2:30 मिनट का समय पूरा हुआ!";
+
+  // Highest dice number total wins in 2:30 min mode (unless 7453 is set)
+  let highestDiceIdx=0;
+  let maxDiceSum=-1;
+  players.forEach((p,idx)=>{
+    if(p.diceTotal>maxDiceSum){
+      maxDiceSum=p.diceTotal;
+      highestDiceIdx=idx;
+    }
+  });
+
+  const winnerIdx=resolveWinner(highestDiceIdx);
+  document.getElementById("resultSub").textContent="2:30 मिनट पूरे! पासे के कुल अंक: "+players[winnerIdx].diceTotal;
   finishGame(winnerIdx);
 }
 
@@ -1011,7 +1075,7 @@ function getLegalMoves(pi,d){
     .map(x=>x.i);
 }
 
-/* Fair & natural 1..6 dice roll for all players; only caps consecutive sixes at 2 */
+/* Natural 1..6 dice roll for all players; only caps consecutive sixes at 2 */
 function getNaturalDice(pi){
   const possible=consecutiveSixes[pi]>=2
     ? [1,2,3,4,5]
@@ -1035,6 +1099,8 @@ async function rollDice(pi){
   }
 
   dice=getNaturalDice(pi);
+  players[pi].diceTotal+=dice;
+  updateDiceScoreUI(pi);
 
   if(dice===6){
     consecutiveSixes[pi]++;
@@ -1120,8 +1186,9 @@ async function movePiece(pi,gi){
 
   if(p.finished===4){
     moving=false;
+    const winnerIdx=resolveWinner(pi);
     document.getElementById("resultSub").textContent="चारों गोटियाँ HOME पहुँच गईं!";
-    finishGame(pi);
+    finishGame(winnerIdx);
     return;
   }
 
