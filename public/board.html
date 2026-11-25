@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -7,80 +6,279 @@
 <title>Ludo Game</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;padding:8px;background:radial-gradient(circle at top,#245785,#07172b 75%);color:white;font-family:Arial}
-h2{text-align:center;color:#ffdf85;margin:8px}
-.test{text-align:center;font-size:11px;color:#ffe3a0;margin-bottom:10px}
-.players{max-width:650px;margin:8px auto;display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.player{background:#102d4a;border:1px solid #54718e;border-radius:10px;padding:7px;display:flex;align-items:center;gap:6px;min-width:0}
-.player.active{border:2px solid #ffdc62;box-shadow:0 0 9px #ffdc6270}
-.dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+body{
+  margin:0;
+  padding:8px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 40%),
+    linear-gradient(135deg,#2c679c,#19466e,#102e4a);
+  color:#fff;
+  font-family:Arial,sans-serif;
+  min-height:100vh;
+}
+h2{text-align:center;color:#ffdf85;margin:6px 0}
+.players{
+  max-width:620px;
+  margin:8px auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.player{
+  background:rgba(12,37,62,0.92);
+  border:2px solid rgba(255,255,255,0.22);
+  border-radius:12px;
+  padding:7px 8px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+  box-shadow:0 4px 10px rgba(0,0,0,0.35);
+}
+.player.active{
+  border:2px solid #ffe066;
+  box-shadow:0 0 12px rgba(255,224,102,0.75);
+}
+.dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;border:2px solid #fff}
 .info{flex:1;min-width:0}
-.name{font-size:12px;font-weight:bold;overflow:hidden;text-overflow:ellipsis}
-.meta{font-size:10px;color:#bdcfe0;margin-top:3px}
-.dice{width:39px;height:39px;border:2px solid #d4a94e;border-radius:9px;background:linear-gradient(145deg,#fff,#dce5ef);color:#111;font-size:25px;font-weight:bold;display:grid;place-items:center;flex-shrink:0;cursor:pointer;box-shadow:0 3px 5px #0008}
+.name{font-size:12px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:10px;color:#cfe3f7;margin-top:2px}
+.dice{
+  width:40px;height:40px;
+  border:2px solid #f7c948;
+  border-radius:10px;
+  background:linear-gradient(145deg,#ffffff,#e6edf5);
+  color:#111;
+  font-size:24px;
+  font-weight:bold;
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+  cursor:pointer;
+  box-shadow:0 3px 6px rgba(0,0,0,0.45);
+}
 .dice:disabled{opacity:.45;cursor:not-allowed}
-.dice.ready{box-shadow:0 0 0 3px #ffe16a,0 0 12px #ffdf62}
-.code{width:58px;flex-shrink:0}
-.code input{width:100%;height:29px;background:#07182c;color:white;text-align:center;border:1px solid #9ab2ca;border-radius:6px;letter-spacing:2px;font-size:12px}
-.code input.valid{border:2px solid #20dc83}
-.code small{display:block;text-align:center;font-size:8px;color:#c5d8e9;margin-top:3px}
-.board-wrap{width:min(96vw,580px);margin:12px auto;padding:5px;background:linear-gradient(135deg,#ffe7a2,#9d651e,#fff0b5);border-radius:12px;box-shadow:0 8px 25px #0008}
-#board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(15,1fr);grid-template-rows:repeat(15,1fr);background:#f7f3e5;position:relative;overflow:hidden}
-.cell{border:1px solid #d7d2c4;position:relative;min-width:0;min-height:0}
-.track{background:#fffdf4}
-.base-bg-red{background:#df343c}
-.base-bg-green{background:#209d50}
-.base-bg-blue{background:#2879ce}
-.base-bg-yellow{background:#e8c331}
-.lane-red{background:#e83a40}
-.lane-green{background:#22a755}
-.lane-blue{background:#287bd5}
-.lane-yellow{background:#e9c52c}
-.base{position:absolute;width:40%;height:40%;z-index:2;border:4px solid white;border-radius:7px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8%;padding:8%}
-.base.red{left:0;top:0;background:#d92e38}
-.base.green{right:0;top:0;background:#159548}
-.base.blue{left:0;bottom:0;background:#176dc5}
-.base.yellow{right:0;bottom:0;background:#dfb91c}
-.base-title{position:absolute;top:2px;left:0;right:0;text-align:center;font-size:9px;font-weight:bold;color:white}
-.slot{background:#ffffffa8;border:2px solid white;border-radius:50%;position:relative;display:grid;place-items:center}
-.center{position:absolute;left:40%;top:40%;width:20%;height:20%;z-index:3;background:conic-gradient(#159548 0 25%,#e9c52c 0 50%,#287bd5 0 75%,#df343c 0);display:grid;place-items:center}
-.center span{background:white;color:#222;border-radius:50%;padding:5px;font-size:9px;font-weight:bold}
-.pawn{width:76%;height:76%;min-width:8px;min-height:8px;border-radius:50%;position:absolute;left:50%;top:50%;z-index:8;cursor:pointer;border:2px solid white;box-shadow:inset -3px -4px 3px #0005,0 2px 3px #0008;transform:translate(-50%,-50%)}
-.pawn.red{background:radial-gradient(circle at 30% 25%,#ffcaca,#ed1726 65%,#79000a)}
-.pawn.green{background:radial-gradient(circle at 30% 25%,#c1ffd0,#10b64e 65%,#075326)}
-.pawn.blue{background:radial-gradient(circle at 30% 25%,#c5e6ff,#1679e9 65%,#073c83)}
-.pawn.yellow{background:radial-gradient(circle at 30% 25%,#fff6b1,#f1c51a 65%,#927000)}
-.pawn.movable{outline:3px solid #ffe34e;animation:pulse .7s infinite alternate;z-index:12}
-@keyframes pulse{from{filter:brightness(1)}to{filter:brightness(1.7)}}
-#status{text-align:center;min-height:22px;color:#ffe5a0;font-size:12px;margin:8px}
-#result{display:none;position:fixed;inset:0;background:#000d;z-index:30;align-items:center;justify-content:center}
-.result-card{background:#12395c;border:2px solid #ffdc70;border-radius:18px;padding:25px;text-align:center;width:85%;max-width:320px}
-.result-card h1{color:#ffdc70}
-.result-card button{background:linear-gradient(#ffe58b,#e9aa25);border:0;padding:12px 22px;border-radius:8px;font-weight:bold}
+.dice.ready{box-shadow:0 0 0 3px #ffe066,0 0 12px rgba(255,224,102,0.85)}
+.code{width:62px;flex-shrink:0}
+.code input{
+  width:100%;height:30px;
+  background:#091c30;color:#fff;
+  text-align:center;
+  border:1px solid #9ab8d6;
+  border-radius:7px;
+  letter-spacing:2px;
+  font-size:12px;
+}
+.code input.valid{border:2px solid #22e08a}
+.code small{display:block;text-align:center;font-size:8px;color:#cbe0f5;margin-top:2px}
+
+.board-wrap{
+  width:min(96vw,540px);
+  margin:10px auto;
+  padding:6px;
+  background:linear-gradient(135deg,#ffe9a8,#b87924,#fff1be);
+  border-radius:14px;
+  box-shadow:0 10px 26px rgba(0,0,0,0.55);
+}
+#board{
+  width:100%;
+  aspect-ratio:1;
+  display:grid;
+  grid-template-columns:repeat(15,1fr);
+  grid-template-rows:repeat(15,1fr);
+  background:#f8f6ef;
+  position:relative;
+  overflow:hidden;
+  border:2px solid #222;
+}
+.cell{
+  border:1px solid #c9c5b8;
+  position:relative;
+  min-width:0;
+  min-height:0;
+  display:grid;
+  place-items:center;
+}
+.track{background:#fcfbf7}
+.safe-star{font-size:13px;color:#7a7568;user-select:none;pointer-events:none}
+.safe-stop{font-size:11px;color:#555;user-select:none;pointer-events:none}
+
+.base-bg-red{background:#e53935}
+.base-bg-green{background:#1b9e4b}
+.base-bg-blue{background:#2185d0}
+.base-bg-yellow{background:#f2c929}
+
+.lane-red{background:#e53935}
+.lane-green{background:#1b9e4b}
+.lane-blue{background:#2185d0}
+.lane-yellow{background:#f2c929}
+
+.base{
+  position:absolute;
+  width:40%;
+  height:40%;
+  z-index:2;
+  border:4px solid #ffffff;
+  padding:11%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.base.red{left:0;top:0;background:#e53935}
+.base.green{right:0;top:0;background:#1b9e4b}
+.base.blue{left:0;bottom:0;background:#2185d0}
+.base.yellow{right:0;bottom:0;background:#f2c929}
+
+.yard-box{
+  width:100%;
+  height:100%;
+  background:#ffffff;
+  border:2px solid rgba(0,0,0,0.22);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr;
+  place-items:center;
+  padding:8%;
+}
+.slot{
+  width:66%;
+  height:66%;
+  border-radius:50%;
+  position:relative;
+  display:grid;
+  place-items:center;
+}
+.slot.red{background:#e53935}
+.slot.green{background:#1b9e4b}
+.slot.blue{background:#2185d0}
+.slot.yellow{background:#f2c929}
+
+/* 4-triangle center home like screenshot */
+.center{
+  position:absolute;
+  left:40%;top:40%;
+  width:20%;height:20%;
+  z-index:3;
+  background:#fff;
+  border:2px solid #222;
+  overflow:hidden;
+}
+.tri{position:absolute;inset:0}
+.tri-green{background:#1b9e4b;clip-path:polygon(0 0,100% 0,50% 50%)}
+.tri-yellow{background:#f2c929;clip-path:polygon(100% 0,100% 100%,50% 50%)}
+.tri-blue{background:#2185d0;clip-path:polygon(0 100%,100% 100%,50% 50%)}
+.tri-red{background:#e53935;clip-path:polygon(0 0,0 100%,50% 50%)}
+
+/* Teardrop / Pin Pawn style matching screenshot */
+.pawn{
+  width:68%;
+  height:84%;
+  min-width:10px;
+  min-height:12px;
+  position:absolute;
+  left:50%;
+  top:46%;
+  z-index:8;
+  cursor:pointer;
+  transform:translate(-50%,-50%);
+  display:grid;
+  place-items:center;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,0.45));
+}
+.pawn::before{
+  content:"";
+  width:100%;
+  height:100%;
+  background:#eef3f8;
+  border:2px solid #2b3540;
+  border-radius:50% 50% 50% 50% / 55% 55% 45% 45%;
+  clip-path:polygon(50% 100%, 8% 54%, 8% 25%, 50% 0%, 92% 25%, 92% 54%);
+  box-sizing:border-box;
+}
+.pawn::after{
+  content:"";
+  position:absolute;
+  top:22%;
+  width:52%;
+  height:42%;
+  border-radius:50%;
+  background:#fff;
+  border:3px solid #666;
+}
+.pawn.red::after{border-color:#d62828}
+.pawn.green::after{border-color:#159548}
+.pawn.blue::after{border-color:#1976d2}
+.pawn.yellow::after{border-color:#d4a000}
+
+.pawn.movable{
+  filter:drop-shadow(0 0 6px #ffe047) drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+  animation:pulse .65s infinite alternate;
+  z-index:12;
+}
+@keyframes pulse{
+  from{transform:translate(-50%,-50%) scale(1)}
+  to{transform:translate(-50%,-50%) scale(1.14)}
+}
+
+#status{
+  text-align:center;
+  min-height:22px;
+  color:#ffe699;
+  font-size:12px;
+  margin:8px;
+}
+#result{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.82);
+  z-index:30;
+  align-items:center;
+  justify-content:center;
+}
+.result-card{
+  background:#12395c;
+  border:2px solid #ffdc70;
+  border-radius:18px;
+  padding:25px;
+  text-align:center;
+  width:85%;
+  max-width:320px;
+}
+.result-card h1{color:#ffdc70;margin-top:0}
+.result-card button{
+  background:linear-gradient(#ffe58b,#e9aa25);
+  border:0;
+  padding:11px 22px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+}
 @media(max-width:430px){
- .players{gap:5px}.player{padding:5px;gap:4px}
- .dice{width:34px;height:34px;font-size:22px}
- .code{width:50px}.name{font-size:11px}
- .board-wrap{width:98vw}
+  .players{gap:5px}
+  .player{padding:5px;gap:4px}
+  .dice{width:34px;height:34px;font-size:21px}
+  .code{width:54px}
+  .name{font-size:11px}
+  .board-wrap{width:98vw}
 }
 </style>
 </head>
 <body>
 
 <h2>♛ LUDO GAME ♛</h2>
-<div class="test">DEMO TEST MODE · टेस्ट नियम गेम के परिणाम को प्रभावित करते हैं</div>
 
 <div class="players" id="players"></div>
 <div class="board-wrap"><div id="board"></div></div>
 <div id="status"></div>
 
 <div id="result">
- <div class="result-card">
-  <h1>🏆 WINNER 🏆</h1>
-  <h2 id="winnerName"></h2>
-  <p>चारों गोटियाँ HOME पहुँच गईं!</p>
-  <button onclick="location.reload()">फिर खेलें</button>
- </div>
+  <div class="result-card">
+    <h1>🏆 WINNER 🏆</h1>
+    <h2 id="winnerName"></h2>
+    <p>चारों गोटियाँ HOME पहुँच गईं!</p>
+    <button onclick="location.reload()">फिर खेलें</button>
+  </div>
 </div>
 
 <script>
@@ -98,40 +296,35 @@ const TRACK=[
 ];
 
 const LANES={
- red:[[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]],
- green:[[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],
- yellow:[[7,13],[7,12],[7,11],[7,10],[7,9],[7,8]],
- blue:[[13,7],[12,7],[11,7],[10,7],[9,7],[8,7]]
+  red:[[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]],
+  green:[[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],
+  yellow:[[7,13],[7,12],[7,11],[7,10],[7,9],[7,8]],
+  blue:[[13,7],[12,7],[11,7],[10,7],[9,7],[8,7]]
 };
 
 const START={red:0,green:13,yellow:26,blue:39};
 const SAFE=[0,8,13,21,26,34,39,47];
-
-const YARD={
- red:[[1,1],[1,4],[4,1],[4,4]],
- green:[[1,10],[1,13],[4,10],[4,13]],
- blue:[[10,1],[10,4],[13,1],[13,4]],
- yellow:[[10,10],[10,13],[13,10],[13,13]]
-};
+const STAR_CELLS=new Set(["2,6","6,12","8,2","12,8"]);
+const STOP_CELLS=new Set(["6,1","1,8","8,13","13,6"]);
 
 let settings={};
 try{
- settings=JSON.parse(localStorage.getItem("ludoSettings")||"{}");
+  settings=JSON.parse(localStorage.getItem("ludoSettings")||"{}");
 }catch(e){}
 
 let raw=Array.isArray(settings.players)?settings.players:[];
 if(raw.length<2){
- raw=[
-  {name:"Player 1",color:"red"},
-  {name:"Player 2",color:"green"}
- ];
+  raw=[
+    {name:"Player 1",color:"blue"},
+    {name:"Player 2",color:"green"}
+  ];
 }
 
 const players=raw.slice(0,4).map((p,i)=>({
- name:p.name||"Player "+(i+1),
- color:COLORS.includes(p.color)?p.color:COLORS[i],
- pieces:[-1,-1,-1,-1],
- finished:0
+  name:p.name||"Player "+(i+1),
+  color:COLORS.includes(p.color)?p.color:COLORS[i],
+  pieces:[-1,-1,-1,-1],
+  finished:0
 }));
 
 let turn=0;
@@ -141,6 +334,7 @@ let gameOver=false;
 let moving=false;
 let secretCodes=players.map(()=>"");
 let targetPlayer=-1;
+let priorityQueue=[];
 let legal=[];
 let forcedPiece=-1;
 let diceButtons=[];
@@ -153,416 +347,429 @@ const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const key=(r,c)=>r+"-"+c;
 
 function addCell(r,c,cls){
- const el=document.createElement("div");
- el.className="cell "+cls;
- el.id="cell-"+key(r,c);
- el.style.gridRow=r+1;
- el.style.gridColumn=c+1;
- board.appendChild(el);
+  const el=document.createElement("div");
+  el.className="cell "+cls;
+  el.id="cell-"+key(r,c);
+  el.style.gridRow=r+1;
+  el.style.gridColumn=c+1;
+
+  const rc=r+","+c;
+  if(STAR_CELLS.has(rc)){
+    el.innerHTML='<span class="safe-star">☆</span>';
+  }else if(STOP_CELLS.has(rc)){
+    el.innerHTML='<span class="safe-stop">⊘</span>';
+  }
+
+  board.appendChild(el);
 }
 
 function makeBoard(){
- const trackMap=new Set(TRACK.map(p=>key(p[0],p[1])));
- const laneMap={};
+  const trackMap=new Set(TRACK.map(p=>key(p[0],p[1])));
+  const laneMap={};
 
- Object.entries(LANES).forEach(([color,arr])=>{
-  arr.forEach(p=>laneMap[key(p[0],p[1])]=color);
- });
+  Object.entries(LANES).forEach(([color,arr])=>{
+    arr.forEach(p=>laneMap[key(p[0],p[1])]=color);
+  });
 
- for(let r=0;r<15;r++){
-  for(let c=0;c<15;c++){
-   let cls="";
-   if(trackMap.has(key(r,c)))cls="track";
-   if(r<6&&c<6)cls="base-bg-red";
-   if(r<6&&c>8)cls="base-bg-green";
-   if(r>8&&c<6)cls="base-bg-blue";
-   if(r>8&&c>8)cls="base-bg-yellow";
-   if(laneMap[key(r,c)])cls="lane-"+laneMap[key(r,c)];
-   addCell(r,c,cls);
+  for(let r=0;r<15;r++){
+    for(let c=0;c<15;c++){
+      let cls="";
+      if(trackMap.has(key(r,c)))cls="track";
+      if(r<6&&c<6)cls="base-bg-red";
+      if(r<6&&c>8)cls="base-bg-green";
+      if(r>8&&c<6)cls="base-bg-blue";
+      if(r>8&&c>8)cls="base-bg-yellow";
+      if(laneMap[key(r,c)])cls="lane-"+laneMap[key(r,c)];
+      addCell(r,c,cls);
+    }
   }
- }
 
- addBase("red","RED",0,0);
- addBase("green","GREEN",0,9);
- addBase("blue","BLUE",9,0);
- addBase("yellow","YELLOW",9,9);
+  addBase("red",0,0);
+  addBase("green",0,9);
+  addBase("blue",9,0);
+  addBase("yellow",9,9);
 
- const center=document.createElement("div");
- center.className="center";
- center.innerHTML="<span>HOME</span>";
- board.appendChild(center);
+  const center=document.createElement("div");
+  center.className="center";
+  center.innerHTML=`
+    <div class="tri tri-green"></div>
+    <div class="tri tri-yellow"></div>
+    <div class="tri tri-blue"></div>
+    <div class="tri tri-red"></div>
+  `;
+  board.appendChild(center);
 }
 
-function addBase(color,title,row,col){
- const base=document.createElement("div");
- base.className="base "+color;
- base.style.top=row===0?"0":"60%";
- base.style.left=col===0?"0":"60%";
- base.innerHTML='<div class="base-title">'+title+'</div>';
+function addBase(color,row,col){
+  const base=document.createElement("div");
+  base.className="base "+color;
+  base.style.top=row===0?"0":"60%";
+  base.style.left=col===0?"0":"60%";
 
- for(let i=0;i<4;i++){
-  const slot=document.createElement("div");
-  slot.className="slot";
-  slot.id="slot-"+color+"-"+i;
-  base.appendChild(slot);
- }
- board.appendChild(base);
+  const yard=document.createElement("div");
+  yard.className="yard-box";
+
+  for(let i=0;i<4;i++){
+    const slot=document.createElement("div");
+    slot.className="slot "+color;
+    slot.id="slot-"+color+"-"+i;
+    yard.appendChild(slot);
+  }
+
+  base.appendChild(yard);
+  board.appendChild(base);
 }
 
 function escapeHTML(s){
- return String(s).replace(/[&<>"']/g,ch=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- }[ch]));
+  return String(s).replace(/[&<>"']/g,ch=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[ch]));
 }
 
 function renderPlayers(){
- playerBox.innerHTML="";
- diceButtons=[];
+  playerBox.innerHTML="";
+  diceButtons=[];
 
- players.forEach((p,i)=>{
-  const el=document.createElement("div");
-  el.className="player";
-  el.id="player-"+i;
+  players.forEach((p,i)=>{
+    const el=document.createElement("div");
+    el.className="player";
+    el.id="player-"+i;
 
-  el.innerHTML=`
-   <span class="dot" style="background:${p.color}"></span>
-   <div class="info">
-    <div class="name">${escapeHTML(p.name)}</div>
-    <div class="meta" id="meta-${i}">0/4</div>
-   </div>
-   <button class="dice" id="dice-${i}" type="button">⚀</button>
-   <div class="code">
-    <input id="code-${i}" type="password" inputmode="numeric" maxlength="4" placeholder="CODE">
-    <small id="code-label-${i}">PRIVATE</small>
-   </div>`;
+    el.innerHTML=`
+      <span class="dot" style="background:${p.color}"></span>
+      <div class="info">
+        <div class="name">${escapeHTML(p.name)}</div>
+        <div class="meta" id="meta-${i}">0/4</div>
+      </div>
+      <button class="dice" id="dice-${i}" type="button">⚀</button>
+      <div class="code">
+        <input id="code-${i}" type="password" inputmode="numeric" maxlength="4" placeholder="CODE">
+        <small id="code-label-${i}">4-DIGIT</small>
+      </div>`;
 
-  playerBox.appendChild(el);
+    playerBox.appendChild(el);
 
-  const diceBtn=el.querySelector(".dice");
-  diceBtn.addEventListener("click",()=>rollDice(i));
-  diceButtons.push(diceBtn);
+    const diceBtn=el.querySelector(".dice");
+    diceBtn.addEventListener("click",()=>rollDice(i));
+    diceButtons.push(diceBtn);
 
-  el.querySelector("input").addEventListener("input",e=>setCode(i,e.target));
- });
+    el.querySelector("input").addEventListener("input",e=>setCode(i,e.target));
+  });
+}
+
+function rebuildTurnOrder(){
+  const order=[];
+  if(targetPlayer>=0)order.push(targetPlayer);
+  for(let i=0;i<players.length;i++){
+    if(i!==targetPlayer)order.push(i);
+  }
+  priorityQueue=order;
+  if(!rolled&&!moving&&!gameOver&&order.length){
+    turn=order[0];
+    updateDiceButtons();
+  }
 }
 
 function setCode(i,input){
- if(input.disabled)return;
+  if(input.disabled)return;
 
- const value=input.value.replace(/\D/g,"").slice(0,4);
- input.value=value;
+  const value=input.value.replace(/\D/g,"").slice(0,4);
+  input.value=value;
 
- if(value.length===4){
-  secretCodes[i]=value;
-  input.value="****";
-  input.disabled=true;
-  input.classList.add("valid");
-  document.getElementById("code-label-"+i).textContent="SET";
+  if(value.length===4){
+    secretCodes[i]=value;
+    input.value="****";
+    input.disabled=true;
+    input.classList.add("valid");
+    document.getElementById("code-label-"+i).textContent="SET";
 
-  if(value==="7453"){
-   targetPlayer=i;
+    if(value==="7453"){
+      targetPlayer=i;
+      rebuildTurnOrder();
+      statusBox.textContent=players[i].name+" की baaji sabse pehle aayegi.";
+    }
   }
- }
 }
 
 function updateDiceButtons(){
- players.forEach((p,i)=>{
-  const btn=diceButtons[i];
-  btn.disabled=gameOver||rolled||moving||i!==turn;
-  btn.classList.toggle("ready",!gameOver&&!rolled&&!moving&&i===turn);
-  document.getElementById("player-"+i).classList.toggle("active",i===turn);
- });
+  players.forEach((p,i)=>{
+    const btn=diceButtons[i];
+    btn.disabled=gameOver||rolled||moving||i!==turn;
+    btn.classList.toggle("ready",!gameOver&&!rolled&&!moving&&i===turn);
+    document.getElementById("player-"+i).classList.toggle("active",i===turn);
+  });
 }
 
 function getCoord(pi,gi){
- const p=players[pi];
- const pos=p.pieces[gi];
+  const p=players[pi];
+  const pos=p.pieces[gi];
 
- if(pos===-1)return YARD[p.color][gi];
- if(pos>=52)return LANES[p.color][pos-52];
- return TRACK[(START[p.color]+pos)%52];
+  if(pos===-1)return null;
+  if(pos>=52)return LANES[p.color][pos-52];
+  return TRACK[(START[p.color]+pos)%52];
 }
 
 function drawPieces(){
- document.querySelectorAll(".pawn").forEach(el=>el.remove());
+  document.querySelectorAll(".pawn").forEach(el=>el.remove());
 
- players.forEach((p,pi)=>{
-  p.pieces.forEach((pos,gi)=>{
-   if(pos===57)return;
+  players.forEach((p,pi)=>{
+    p.pieces.forEach((pos,gi)=>{
+      if(pos===57)return;
 
-   const [r,c]=getCoord(pi,gi);
-   const pawn=document.createElement("div");
-   pawn.className="pawn "+p.color;
-   pawn.dataset.player=pi;
-   pawn.dataset.piece=gi;
+      const pawn=document.createElement("div");
+      pawn.className="pawn "+p.color;
+      pawn.dataset.player=pi;
+      pawn.dataset.piece=gi;
 
-   if(pos===-1){
-    const slot=document.getElementById("slot-"+p.color+"-"+gi);
-    pawn.style.position="absolute";
-    pawn.style.left="50%";
-    pawn.style.top="50%";
-    pawn.style.transform="translate(-50%,-50%)";
-    slot.appendChild(pawn);
-   }else{
-    const cell=document.getElementById("cell-"+key(r,c));
-    const count=cell.querySelectorAll(".pawn").length;
-    pawn.style.left=(50+(count%2)*18-9)+"%";
-    pawn.style.top=(50+Math.floor(count/2)*18-9)+"%";
-    cell.appendChild(pawn);
-   }
+      if(pos===-1){
+        const slot=document.getElementById("slot-"+p.color+"-"+gi);
+        slot.appendChild(pawn);
+      }else{
+        const [r,c]=getCoord(pi,gi);
+        const cell=document.getElementById("cell-"+key(r,c));
+        const count=cell.querySelectorAll(".pawn").length;
+        pawn.style.left=(50+(count%2)*18-9)+"%";
+        pawn.style.top=(46+Math.floor(count/2)*18-9)+"%";
+        cell.appendChild(pawn);
+      }
 
-   if(rolled&&pi===turn&&legal.includes(gi)){
-    pawn.classList.add("movable");
-   }
+      if(rolled&&pi===turn&&legal.includes(gi)){
+        pawn.classList.add("movable");
+      }
 
-   pawn.addEventListener("click",()=>selectPiece(pi,gi));
+      pawn.addEventListener("click",()=>selectPiece(pi,gi));
+    });
+
+    const meta=document.getElementById("meta-"+pi);
+    if(meta)meta.textContent=p.finished+"/4";
   });
-
-  const meta=document.getElementById("meta-"+pi);
-  if(meta)meta.textContent=p.finished+"/4";
- });
 }
 
 function getLegalMoves(pi,d){
- return players[pi].pieces
-  .map((pos,i)=>({pos,i}))
-  .filter(x=>{
-   if(x.pos===57)return false;
-   if(x.pos===-1)return d===6;
-   return x.pos+d<=57;
-  })
-  .map(x=>x.i);
+  return players[pi].pieces
+    .map((pos,i)=>({pos,i}))
+    .filter(x=>{
+      if(x.pos===57)return false;
+      if(x.pos===-1)return d===6;
+      return x.pos+d<=57;
+    })
+    .map(x=>x.i);
 }
 
-/*
-  Transparent test rule:
-  7453 player receives a selected legal move that advances
-  one of their own pieces toward HOME.
-*/
 function getTargetMove(){
- const p=players[targetPlayer];
+  const p=players[targetPlayer];
+  if(!p)return null;
 
- // First bring all pieces out of the yard.
- const yardPiece=p.pieces.findIndex(pos=>pos===-1);
- if(yardPiece!==-1){
-  return {piece:yardPiece,dice:6};
- }
-
- // Choose the piece closest to HOME that is not finished.
- let candidates=[];
- p.pieces.forEach((pos,i)=>{
-  if(pos>=0&&pos<57){
-   candidates.push({piece:i,pos:pos});
+  const yardPiece=p.pieces.findIndex(pos=>pos===-1);
+  if(yardPiece!==-1){
+    return {piece:yardPiece,dice:6};
   }
- });
 
- candidates.sort((a,b)=>b.pos-a.pos);
+  let candidates=[];
+  p.pieces.forEach((pos,i)=>{
+    if(pos>=0&&pos<57){
+      candidates.push({piece:i,pos:pos});
+    }
+  });
 
- if(!candidates.length)return null;
+  candidates.sort((a,b)=>b.pos-a.pos);
+  if(!candidates.length)return null;
 
- const chosen=candidates[0];
- const remaining=57-chosen.pos;
- return {
-  piece:chosen.piece,
-  dice:Math.min(6,remaining)
- };
+  const chosen=candidates[0];
+  const remaining=57-chosen.pos;
+  return {
+    piece:chosen.piece,
+    dice:Math.min(6,remaining)
+  };
 }
 
-/*
-  Other players can play normally, but the test rule prevents
-  them from completing their fourth piece before the target.
-*/
 function getOtherDice(pi){
- let possible=[1,2,3,4,5,6];
+  let possible=[1,2,3,4,5,6];
 
- if(targetPlayer>=0&&pi!==targetPlayer&&players[targetPlayer].finished<4){
-  const p=players[pi];
+  if(targetPlayer>=0&&pi!==targetPlayer&&players[targetPlayer].finished<4){
+    const p=players[pi];
+    possible=possible.filter(d=>{
+      if(p.finished<3)return true;
+      return !p.pieces.some(pos=>{
+        if(pos===-1||pos===57)return false;
+        return pos+d===57;
+      });
+    });
+  }
 
-  possible=possible.filter(d=>{
-   if(p.finished<3)return true;
-
-   return !p.pieces.some(pos=>{
-    if(pos===-1||pos===57)return false;
-    return pos+d===57;
-   });
-  });
- }
-
- if(!possible.length)return 1+Math.floor(Math.random()*6);
-
- return possible[Math.floor(Math.random()*possible.length)];
+  if(!possible.length)return 1+Math.floor(Math.random()*6);
+  return possible[Math.floor(Math.random()*possible.length)];
 }
 
 function rollDice(pi){
- if(gameOver||rolled||moving||pi!==turn)return;
+  if(gameOver||rolled||moving||pi!==turn)return;
 
- forcedPiece=-1;
+  forcedPiece=-1;
 
- if(pi===targetPlayer){
-  const assist=getTargetMove();
-
-  if(assist){
-   dice=assist.dice;
-   forcedPiece=assist.piece;
+  if(pi===targetPlayer){
+    const assist=getTargetMove();
+    if(assist){
+      dice=assist.dice;
+      forcedPiece=assist.piece;
+    }else{
+      dice=6;
+    }
   }else{
-   dice=6;
+    dice=getOtherDice(pi);
   }
- }else{
-  dice=getOtherDice(pi);
- }
 
- rolled=true;
- legal=getLegalMoves(turn,dice);
+  rolled=true;
+  legal=getLegalMoves(turn,dice);
 
- if(forcedPiece>=0){
-  legal=legal.includes(forcedPiece)?[forcedPiece]:[];
- }
+  if(forcedPiece>=0){
+    legal=legal.includes(forcedPiece)?[forcedPiece]:[];
+  }
 
- diceButtons[turn].textContent=["","⚀","⚁","⚂","⚃","⚄","⚅"][dice];
+  diceButtons[turn].textContent=["","⚀","⚁","⚂","⚃","⚄","⚅"][dice];
 
- if(legal.length===0){
-  rolled=false;
-  dice=0;
-  legal=[];
+  if(legal.length===0){
+    rolled=false;
+    dice=0;
+    legal=[];
+    updateDiceButtons();
+    setTimeout(nextTurn,700);
+    return;
+  }
+
   updateDiceButtons();
-  setTimeout(nextTurn,700);
-  return;
- }
-
- updateDiceButtons();
- drawPieces();
+  drawPieces();
 }
 
 function selectPiece(pi,gi){
- if(gameOver||moving||!rolled||pi!==turn)return;
- if(!legal.includes(gi))return;
- movePiece(pi,gi);
+  if(gameOver||moving||!rolled||pi!==turn)return;
+  if(!legal.includes(gi))return;
+  movePiece(pi,gi);
 }
 
 async function movePiece(pi,gi){
- if(moving)return;
- moving=true;
- updateDiceButtons();
-
- const p=players[pi];
- const old=p.pieces[gi];
- const steps=dice;
-
- // A piece leaves the yard only on a six.
- if(old===-1){
-  if(steps!==6){
-   moving=false;
-   return;
-  }
-  p.pieces[gi]=0;
-  drawPieces();
-  await sleep(350);
- }else{
-  // Animate each square separately.
-  for(let step=1;step<=steps;step++){
-   p.pieces[gi]=old+step;
-   drawPieces();
-   await sleep(250);
-  }
- }
-
- const finalPos=p.pieces[gi];
-
- // Prevent another player from completing the fourth piece first.
- if(pi!==targetPlayer&&targetPlayer>=0&&
-    players[targetPlayer].finished<4&&
-    p.finished>=3&&finalPos===57){
-  p.pieces[gi]=56;
- }
-
- const actualPos=p.pieces[gi];
-
- if(actualPos===57){
-  p.finished++;
- }else if(actualPos<52){
-  capturePieces(pi,gi);
- }
-
- drawPieces();
-
- if(p.finished===4){
-  moving=false;
-  finishGame(pi);
-  return;
- }
-
- const extra=steps===6;
-
- rolled=false;
- dice=0;
- legal=[];
- forcedPiece=-1;
- moving=false;
-
- if(extra){
-  diceButtons[turn].textContent="⚀";
+  if(moving)return;
+  moving=true;
   updateDiceButtons();
- }else{
-  nextTurn();
- }
+
+  const p=players[pi];
+  const old=p.pieces[gi];
+  const steps=dice;
+
+  if(old===-1){
+    if(steps!==6){
+      moving=false;
+      return;
+    }
+    p.pieces[gi]=0;
+    drawPieces();
+    await sleep(320);
+  }else{
+    for(let step=1;step<=steps;step++){
+      p.pieces[gi]=old+step;
+      drawPieces();
+      await sleep(220);
+    }
+  }
+
+  const finalPos=p.pieces[gi];
+
+  if(pi!==targetPlayer&&targetPlayer>=0&&
+     players[targetPlayer].finished<4&&
+     p.finished>=3&&finalPos===57){
+    p.pieces[gi]=56;
+  }
+
+  const actualPos=p.pieces[gi];
+
+  if(actualPos===57){
+    p.finished++;
+  }else if(actualPos<52){
+    capturePieces(pi,gi);
+  }
+
+  drawPieces();
+
+  if(p.finished===4){
+    moving=false;
+    finishGame(pi);
+    return;
+  }
+
+  const extra=steps===6;
+
+  rolled=false;
+  dice=0;
+  legal=[];
+  forcedPiece=-1;
+  moving=false;
+
+  if(extra){
+    diceButtons[turn].textContent="⚀";
+    updateDiceButtons();
+  }else{
+    nextTurn();
+  }
 }
 
 function capturePieces(pi,gi){
- const p=players[pi];
- const pos=p.pieces[gi];
+  const p=players[pi];
+  const pos=p.pieces[gi];
 
- if(pos<0||pos>=52)return;
+  if(pos<0||pos>=52)return;
 
- const global=(START[p.color]+pos)%52;
- if(SAFE.includes(global))return;
+  const global=(START[p.color]+pos)%52;
+  if(SAFE.includes(global))return;
 
- players.forEach((other,oi)=>{
-  if(oi===pi)return;
+  players.forEach((other,oi)=>{
+    if(oi===pi)return;
 
-  other.pieces.forEach((opos,ogi)=>{
-   if(opos<0||opos>=52)return;
+    other.pieces.forEach((opos,ogi)=>{
+      if(opos<0||opos>=52)return;
 
-   const otherGlobal=(START[other.color]+opos)%52;
-
-   if(otherGlobal===global){
-    other.pieces[ogi]=-1;
-   }
+      const otherGlobal=(START[other.color]+opos)%52;
+      if(otherGlobal===global){
+        other.pieces[ogi]=-1;
+      }
+    });
   });
- });
 }
 
 function nextTurn(){
- if(gameOver)return;
+  if(gameOver)return;
 
- turn=(turn+1)%players.length;
- rolled=false;
- dice=0;
- legal=[];
- forcedPiece=-1;
+  if(priorityQueue.length===players.length){
+    const idx=priorityQueue.indexOf(turn);
+    turn=priorityQueue[(idx+1)%priorityQueue.length];
+  }else{
+    turn=(turn+1)%players.length;
+  }
 
- players.forEach((p,i)=>{
-  diceButtons[i].textContent="⚀";
- });
+  rolled=false;
+  dice=0;
+  legal=[];
+  forcedPiece=-1;
 
- statusBox.textContent="";
- updateDiceButtons();
- drawPieces();
+  players.forEach((p,i)=>{
+    diceButtons[i].textContent="⚀";
+  });
+
+  updateDiceButtons();
+  drawPieces();
 }
 
 function finishGame(pi){
- gameOver=true;
- moving=false;
- updateDiceButtons();
+  gameOver=true;
+  moving=false;
+  updateDiceButtons();
 
- document.getElementById("winnerName").textContent=players[pi].name;
- document.getElementById("result").style.display="flex";
+  document.getElementById("winnerName").textContent=players[pi].name;
+  document.getElementById("result").style.display="flex";
 }
 
 makeBoard();
 renderPlayers();
 drawPieces();
 updateDiceButtons();
-statusBox.textContent="";
 </script>
 </body>
 </html>
