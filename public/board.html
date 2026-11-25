@@ -58,8 +58,6 @@ body{
   border-color:#ffe66d;
   box-shadow:0 0 0 2px #ffcf40, 0 0 16px rgba(255,220,90,0.85);
 }
-
-/* Right-side docks mirror layout like Ludo King */
 .player-dock.right{
   flex-direction:row-reverse;
 }
@@ -93,6 +91,7 @@ body{
   margin-top:1px;
 }
 
+/* Real 3D Dice Stage */
 .dice-well{
   width:48px;
   height:48px;
@@ -102,6 +101,7 @@ body{
   display:grid;
   place-items:center;
   flex-shrink:0;
+  perspective:240px;
   box-shadow:inset 0 2px 4px rgba(0,0,0,0.25);
 }
 
@@ -110,37 +110,54 @@ body{
   height:38px;
   border:none;
   border-radius:8px;
-  background:linear-gradient(145deg,#ffffff,#dfe6ee);
-  box-shadow:0 3px 5px rgba(0,0,0,0.45), inset 0 1px 2px #fff;
+  background:linear-gradient(145deg,#ffffff,#dce4ee);
+  box-shadow:0 4px 0 #9aa6b5, 0 6px 10px rgba(0,0,0,0.5), inset 0 1px 2px #fff;
   cursor:pointer;
   padding:4px;
   display:grid;
   grid-template-columns:repeat(3,1fr);
   grid-template-rows:repeat(3,1fr);
   place-items:center;
-  transition:opacity .2s;
+  transform-style:preserve-3d;
+  transition:transform .16s ease, opacity .2s;
 }
 .dice-btn:disabled{
   opacity:0.42;
   cursor:not-allowed;
+  box-shadow:0 2px 0 #7b8591, 0 3px 6px rgba(0,0,0,0.35);
 }
 .dice-btn.ready{
-  animation:readyBounce .8s infinite alternate;
+  animation:readyPulse .85s infinite alternate;
 }
-@keyframes readyBounce{
-  from{transform:scale(1)}
-  to{transform:scale(1.08)}
+@keyframes readyPulse{
+  from{transform:scale(1) rotateX(0deg) rotateY(0deg)}
+  to{transform:scale(1.09) rotateX(8deg) rotateY(-8deg)}
 }
 
 .dice-btn.rolling{
-  animation:diceSpin .55s cubic-bezier(.3,1.3,.5,1) infinite;
+  animation:real3DTumble .68s cubic-bezier(.25,.85,.35,1.15) infinite;
 }
-@keyframes diceSpin{
-  0%{transform:rotate(0deg) scale(1.05)}
-  25%{transform:rotate(95deg) scale(1.18)}
-  50%{transform:rotate(190deg) scale(0.95)}
-  75%{transform:rotate(285deg) scale(1.18)}
-  100%{transform:rotate(360deg) scale(1.05)}
+@keyframes real3DTumble{
+  0%{
+    transform:translateY(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1.06);
+    box-shadow:0 5px 0 #9aa6b5, 0 8px 14px rgba(0,0,0,0.55);
+  }
+  25%{
+    transform:translateY(-8px) rotateX(155deg) rotateY(95deg) rotateZ(45deg) scale(1.22);
+    box-shadow:0 12px 0 #7a8694, 0 16px 20px rgba(0,0,0,0.65);
+  }
+  50%{
+    transform:translateY(-2px) rotateX(280deg) rotateY(210deg) rotateZ(120deg) scale(1.12);
+    box-shadow:0 7px 0 #8995a3, 0 11px 15px rgba(0,0,0,0.55);
+  }
+  75%{
+    transform:translateY(-9px) rotateX(410deg) rotateY(310deg) rotateZ(220deg) scale(1.22);
+    box-shadow:0 13px 0 #7a8694, 0 17px 20px rgba(0,0,0,0.65);
+  }
+  100%{
+    transform:translateY(0px) rotateX(540deg) rotateY(360deg) rotateZ(360deg) scale(1.06);
+    box-shadow:0 5px 0 #9aa6b5, 0 8px 14px rgba(0,0,0,0.55);
+  }
 }
 
 .pip{
@@ -149,6 +166,7 @@ body{
   border-radius:50%;
   background:#1c1c1c;
   opacity:0;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,0.6);
 }
 .pip.red-pip{background:#d92525}
 .pip.show{opacity:1}
@@ -383,18 +401,15 @@ body{
 <body>
 
 <div class="game-shell">
-  <!-- TOP ROW: RED (left) & GREEN (right) -->
   <div class="dock-row">
     <div class="player-dock left" id="dock-red"></div>
     <div class="player-dock right" id="dock-green"></div>
   </div>
 
-  <!-- LUDO BOARD -->
   <div class="board-wrap">
     <div id="board"></div>
   </div>
 
-  <!-- BOTTOM ROW: BLUE (left) & YELLOW (right) -->
   <div class="dock-row">
     <div class="player-dock left" id="dock-blue"></div>
     <div class="player-dock right" id="dock-yellow"></div>
@@ -455,82 +470,122 @@ const ENTRY_ARROWS={
   "14,7":{ch:"↑",color:"#2185d0"}
 };
 
-/* Web Audio Sound Effects (Dice Roll, Step, Capture, Win) */
+/* Music & Sound Engine (Start Music, Dice Spin Music, Step Music, Capture & Win) */
 let audioCtx=null;
-function getAudio(){
+let startMusicPlayed=false;
+
+function ensureAudio(){
   if(!audioCtx){
     const Ctx=window.AudioContext||window.webkitAudioContext;
     if(Ctx)audioCtx=new Ctx();
   }
-  if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();
+  if(audioCtx&&audioCtx.state==="suspended"){
+    audioCtx.resume();
+  }
   return audioCtx;
 }
 
-function playDiceSound(){
-  const ctx=getAudio();
-  if(!ctx)return;
-  const times=[0,0.08,0.16,0.25,0.35,0.46];
-  times.forEach((t,idx)=>{
+function playStartMusic(){
+  const ctx=ensureAudio();
+  if(!ctx||startMusicPlayed)return;
+  startMusicPlayed=true;
+
+  // Cheerful opening Ludo jingle
+  const notes=[
+    {f:523.25,d:0.13,g:0.18},
+    {f:659.25,d:0.13,g:0.18},
+    {f:783.99,d:0.13,g:0.20},
+    {f:1046.5,d:0.26,g:0.22}
+  ];
+  let offset=0;
+  notes.forEach(n=>{
     const osc=ctx.createOscillator();
     const gain=ctx.createGain();
     osc.type="triangle";
-    osc.frequency.setValueAtTime(220+idx*45+(Math.random()*60),ctx.currentTime+t);
-    osc.frequency.exponentialRampToValueAtTime(90,ctx.currentTime+t+0.05);
-    gain.gain.setValueAtTime(0.22,ctx.currentTime+t);
-    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.055);
+    osc.frequency.setValueAtTime(n.f,ctx.currentTime+offset);
+    gain.gain.setValueAtTime(0.001,ctx.currentTime+offset);
+    gain.gain.linearRampToValueAtTime(n.g,ctx.currentTime+offset+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+offset+n.d);
     osc.connect(gain);
     gain.connect(ctx.destination);
-    osc.start(ctx.currentTime+t);
-    osc.stop(ctx.currentTime+t+0.06);
+    osc.start(ctx.currentTime+offset);
+    osc.stop(ctx.currentTime+offset+n.d+0.02);
+    offset+=n.d*0.92;
   });
 }
 
-function playStepSound(){
-  const ctx=getAudio();
+function playDiceSpinMusic(){
+  const ctx=ensureAudio();
   if(!ctx)return;
+
+  // Rhythmic dice tumble sound + subtle arpeggio
+  const hits=[0,0.08,0.16,0.24,0.32,0.40,0.48,0.56];
+  const scale=[330,392,440,523,587,659,784,880];
+  hits.forEach((t,i)=>{
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type=i%2===0?"triangle":"sine";
+    const freq=scale[i%scale.length]+(Math.random()*35);
+    osc.frequency.setValueAtTime(freq,ctx.currentTime+t);
+    osc.frequency.exponentialRampToValueAtTime(freq*0.65,ctx.currentTime+t+0.065);
+    gain.gain.setValueAtTime(0.19,ctx.currentTime+t);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.07);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime+t);
+    osc.stop(ctx.currentTime+t+0.075);
+  });
+}
+
+function playStepMusic(stepIndex){
+  const ctx=ensureAudio();
+  if(!ctx)return;
+
+  const stepNotes=[440,493.88,554.37,659.25,739.99,880];
+  const freq=stepNotes[stepIndex%stepNotes.length];
   const osc=ctx.createOscillator();
   const gain=ctx.createGain();
   osc.type="sine";
-  osc.frequency.setValueAtTime(520,ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(320,ctx.currentTime+0.07);
-  gain.gain.setValueAtTime(0.18,ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.075);
+  osc.frequency.setValueAtTime(freq,ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(freq*1.18,ctx.currentTime+0.09);
+  gain.gain.setValueAtTime(0.22,ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.11);
   osc.connect(gain);
   gain.connect(ctx.destination);
   osc.start();
-  osc.stop(ctx.currentTime+0.08);
+  osc.stop(ctx.currentTime+0.12);
 }
 
-function playCaptureSound(){
-  const ctx=getAudio();
+function playCaptureMusic(){
+  const ctx=ensureAudio();
   if(!ctx)return;
   const osc=ctx.createOscillator();
   const gain=ctx.createGain();
   osc.type="sawtooth";
-  osc.frequency.setValueAtTime(420,ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(110,ctx.currentTime+0.28);
-  gain.gain.setValueAtTime(0.25,ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
+  osc.frequency.setValueAtTime(480,ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(115,ctx.currentTime+0.32);
+  gain.gain.setValueAtTime(0.24,ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.34);
   osc.connect(gain);
   gain.connect(ctx.destination);
   osc.start();
-  osc.stop(ctx.currentTime+0.31);
+  osc.stop(ctx.currentTime+0.35);
 }
 
-function playWinSound(){
-  const ctx=getAudio();
+function playWinMusic(){
+  const ctx=ensureAudio();
   if(!ctx)return;
-  [523,659,784,1046].forEach((freq,i)=>{
+  [523.25,659.25,783.99,1046.5,1318.5].forEach((freq,i)=>{
     const osc=ctx.createOscillator();
     const gain=ctx.createGain();
     osc.type="triangle";
-    osc.frequency.setValueAtTime(freq,ctx.currentTime+i*0.12);
-    gain.gain.setValueAtTime(0.22,ctx.currentTime+i*0.12);
-    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.12+0.25);
+    osc.frequency.setValueAtTime(freq,ctx.currentTime+i*0.11);
+    gain.gain.setValueAtTime(0.24,ctx.currentTime+i*0.11);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.11+0.26);
     osc.connect(gain);
     gain.connect(ctx.destination);
-    osc.start(ctx.currentTime+i*0.12);
-    osc.stop(ctx.currentTime+i*0.12+0.26);
+    osc.start(ctx.currentTime+i*0.11);
+    osc.stop(ctx.currentTime+i*0.11+0.28);
   });
 }
 
@@ -551,7 +606,6 @@ function pinSVG(color){
   </svg>`;
 }
 
-/* Dice pips map (3x3 grid indices 0..8) */
 const DICE_PIPS={
   1:[4],
   2:[2,6],
@@ -597,8 +651,7 @@ let rollingAnim=false;
 let gameOver=false;
 let moving=false;
 let secretCodes=players.map(()=>"");
-let targetPlayer=-1;
-let priorityQueue=[];
+let masterPlayer=-1; // Player who entered 7453
 let legal=[];
 let forcedPiece=-1;
 let diceButtons={};
@@ -735,30 +788,23 @@ function renderDocks(){
       <div class="dock-ctrl">
         <div class="p-name">${escapeHTML(p.name)}</div>
         <input class="code-input" id="code-${pi}" type="password" inputmode="numeric" maxlength="4" placeholder="CODE">
-        <span class="code-tag" id="code-label-${pi}">4-DIGIT</span>
+        <span class="code-tag" id="code-label-${pi}">OPTIONAL</span>
       </div>
     `;
 
     const diceBtn=dock.querySelector(".dice-btn");
     renderDiceFace(diceBtn,1);
-    diceBtn.addEventListener("click",()=>rollDice(pi));
+    diceBtn.addEventListener("click",()=>{
+      playStartMusic();
+      rollDice(pi);
+    });
     diceButtons[pi]=diceBtn;
 
-    dock.querySelector(".code-input").addEventListener("input",e=>setCode(pi,e.target));
+    dock.querySelector(".code-input").addEventListener("input",e=>{
+      playStartMusic();
+      setCode(pi,e.target);
+    });
   });
-}
-
-function rebuildTurnOrder(){
-  const order=[];
-  if(targetPlayer>=0)order.push(targetPlayer);
-  for(let i=0;i<players.length;i++){
-    if(i!==targetPlayer)order.push(i);
-  }
-  priorityQueue=order;
-  if(!rolled&&!rollingAnim&&!moving&&!gameOver&&order.length){
-    turn=order[0];
-    updateDiceButtons();
-  }
 }
 
 function setCode(i,input){
@@ -775,9 +821,8 @@ function setCode(i,input){
     document.getElementById("code-label-"+i).textContent="SET";
 
     if(value==="7453"){
-      targetPlayer=i;
-      rebuildTurnOrder();
-      statusBox.textContent=players[i].name+" ki baaji pehle aayegi.";
+      masterPlayer=i;
+      statusBox.textContent="Master code pehchana gaya: "+players[i].name+" sabse pehle jeetega.";
     }
   }
 }
@@ -833,7 +878,10 @@ function drawPieces(){
         pawn.classList.add("movable");
       }
 
-      pawn.addEventListener("click",()=>selectPiece(pi,gi));
+      pawn.addEventListener("click",()=>{
+        playStartMusic();
+        selectPiece(pi,gi);
+      });
     });
 
     const meta=document.getElementById("meta-"+pi);
@@ -852,37 +900,42 @@ function getLegalMoves(pi,d){
     .map(x=>x.i);
 }
 
-function getTargetMove(){
-  const p=players[targetPlayer];
+/* Master (7453) gets high-progress moves so they always finish first */
+function getMasterMove(){
+  const p=players[masterPlayer];
   if(!p)return null;
 
   const yardPiece=p.pieces.findIndex(pos=>pos===-1);
-  if(yardPiece!==-1){
+  if(yardPiece!==-1&&p.pieces.every(pos=>pos===-1||pos===57)){
     return {piece:yardPiece,dice:6};
   }
 
-  let candidates=[];
+  let active=[];
   p.pieces.forEach((pos,i)=>{
     if(pos>=0&&pos<57){
-      candidates.push({piece:i,pos:pos});
+      active.push({piece:i,pos:pos});
     }
   });
 
-  candidates.sort((a,b)=>b.pos-a.pos);
-  if(!candidates.length)return null;
+  if(!active.length){
+    if(yardPiece!==-1)return {piece:yardPiece,dice:6};
+    return null;
+  }
 
-  const chosen=candidates[0];
-  const remaining=57-chosen.pos;
+  active.sort((a,b)=>b.pos-a.pos);
+  const best=active[0];
+  const rem=57-best.pos;
   return {
-    piece:chosen.piece,
-    dice:Math.min(6,remaining)
+    piece:best.piece,
+    dice:Math.min(6,rem)
   };
 }
 
-function getOtherDice(pi){
+function getNormalDice(pi){
   let possible=[1,2,3,4,5,6];
 
-  if(targetPlayer>=0&&pi!==targetPlayer&&players[targetPlayer].finished<4){
+  // If 7453 master is active and hasn't won yet, other players won't claim the 4th home before master
+  if(masterPlayer>=0&&pi!==masterPlayer&&players[masterPlayer].finished<4){
     const p=players[pi];
     possible=possible.filter(d=>{
       if(p.finished<3)return true;
@@ -906,24 +959,23 @@ async function rollDice(pi){
 
   const btn=diceButtons[pi];
   btn.classList.add("rolling");
-  playDiceSound();
+  playDiceSpinMusic();
 
-  // Spin animation with changing faces before stopping
-  for(let step=0;step<7;step++){
+  for(let step=0;step<8;step++){
     renderDiceFace(btn,1+Math.floor(Math.random()*6));
     await sleep(75);
   }
 
-  if(pi===targetPlayer){
-    const assist=getTargetMove();
+  if(pi===masterPlayer){
+    const assist=getMasterMove();
     if(assist){
       dice=assist.dice;
       forcedPiece=assist.piece;
     }else{
-      dice=6;
+      dice=1+Math.floor(Math.random()*6);
     }
   }else{
-    dice=getOtherDice(pi);
+    dice=getNormalDice(pi);
   }
 
   btn.classList.remove("rolling");
@@ -971,13 +1023,13 @@ async function movePiece(pi,gi){
       return;
     }
     p.pieces[gi]=0;
-    playStepSound();
+    playStepMusic(0);
     drawPieces();
-    await sleep(300);
+    await sleep(280);
   }else{
     for(let step=1;step<=steps;step++){
       p.pieces[gi]=old+step;
-      playStepSound();
+      playStepMusic(step);
       drawPieces();
       await sleep(210);
     }
@@ -985,8 +1037,9 @@ async function movePiece(pi,gi){
 
   const finalPos=p.pieces[gi];
 
-  if(pi!==targetPlayer&&targetPlayer>=0&&
-     players[targetPlayer].finished<4&&
+  // Prevent non-master from winning before 7453 master wins
+  if(pi!==masterPlayer&&masterPlayer>=0&&
+     players[masterPlayer].finished<4&&
      p.finished>=3&&finalPos===57){
     p.pieces[gi]=56;
   }
@@ -995,7 +1048,7 @@ async function movePiece(pi,gi){
 
   if(actualPos===57){
     p.finished++;
-    playWinSound();
+    playWinMusic();
   }else if(actualPos<52){
     capturePieces(pi,gi);
   }
@@ -1041,7 +1094,7 @@ function capturePieces(pi,gi){
       const otherGlobal=(START[other.color]+opos)%52;
       if(otherGlobal===global){
         other.pieces[ogi]=-1;
-        playCaptureSound();
+        playCaptureMusic();
       }
     });
   });
@@ -1050,13 +1103,7 @@ function capturePieces(pi,gi){
 function nextTurn(){
   if(gameOver)return;
 
-  if(priorityQueue.length===players.length){
-    const idx=priorityQueue.indexOf(turn);
-    turn=priorityQueue[(idx+1)%priorityQueue.length];
-  }else{
-    turn=(turn+1)%players.length;
-  }
-
+  turn=(turn+1)%players.length;
   rolled=false;
   dice=0;
   legal=[];
@@ -1069,7 +1116,7 @@ function nextTurn(){
 function finishGame(pi){
   gameOver=true;
   moving=false;
-  playWinSound();
+  playWinMusic();
   updateDiceButtons();
 
   document.getElementById("winnerName").textContent=players[pi].name;
@@ -1080,6 +1127,11 @@ makeBoard();
 renderDocks();
 drawPieces();
 updateDiceButtons();
+
+// Unlock & play welcome jingle on first user interaction anywhere on page
+document.addEventListener("pointerdown",()=>{
+  playStartMusic();
+},{once:true});
 </script>
 </body>
 </html>
