@@ -4,93 +4,147 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LudoKing</title>
+<meta name="theme-color" content="#10182a">
+<title>LudoKing - Play Together</title>
 
 <style>
-* {
-    box-sizing: border-box;
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ min-height:100vh;
+ background:linear-gradient(145deg,#10182a,#1d3150);
+ color:white;
+ font-family:Arial,sans-serif;
+ padding:18px;
 }
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: linear-gradient(145deg,#101827,#202f48);
-    color: white;
-    font-family: Arial, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+.container{
+ max-width:460px;
+ margin:auto;
 }
 
-.container {
-    width: 100%;
-    max-width: 420px;
-    text-align: center;
-    background: #19263b;
-    padding: 28px 20px;
-    border-radius: 22px;
-    box-shadow: 0 15px 40px #0006;
+header{
+ text-align:center;
+ padding:25px 10px;
 }
 
-.logo {
-    font-size: 65px;
+.logo{
+ font-size:75px;
+ filter:drop-shadow(0 5px 15px #ffd34e55);
 }
 
-h1 {
-    color: #ffd34e;
-    font-size: 34px;
-    margin: 8px 0;
+h1{
+ font-size:38px;
+ color:#ffd34e;
+ margin:5px;
+ letter-spacing:1px;
 }
 
-.subtitle {
-    color: #b7c4d8;
-    margin-bottom: 28px;
+.tagline{
+ color:#aebdd3;
+ font-size:14px;
 }
 
-button {
-    width: 100%;
-    padding: 16px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 12px;
-    font-size: 17px;
-    font-weight: bold;
-    cursor: pointer;
+.banner{
+ margin:15px 0 22px;
+ padding:22px 15px;
+ text-align:center;
+ border-radius:20px;
+ background:linear-gradient(135deg,#304d75,#1c2b45);
+ border:1px solid #526b8c;
 }
 
-.offline {
-    background: #ffd34e;
-    color: #182033;
+.banner h2{
+ margin:0 0 8px;
+ color:#ffe17a;
 }
 
-.online {
-    background: #347de0;
-    color: white;
+.banner p{
+ margin:0;
+ color:#d1dbea;
+ font-size:14px;
 }
 
-input {
-    width: 100%;
-    padding: 14px;
-    margin: 8px 0;
-    border: 1px solid #50617b;
-    border-radius: 10px;
-    background: #101827;
-    color: white;
-    font-size: 16px;
+.section-title{
+ font-size:18px;
+ margin:22px 5px 12px;
+ color:#ffd34e;
+ font-weight:bold;
 }
 
-#online {
-    display: none;
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #40506a;
+.mode{
+ display:flex;
+ align-items:center;
+ gap:15px;
+ padding:19px;
+ margin:12px 0;
+ border-radius:17px;
+ background:linear-gradient(120deg,#293e5d,#1b2940);
+ border:1px solid #465d7d;
+ text-decoration:none;
+ color:white;
+ transition:.2s;
 }
 
-.small {
-    color: #aab8cc;
-    font-size: 13px;
-    margin-top: 20px;
+.mode:active{
+ transform:scale(.97);
+}
+
+.mode-icon{
+ font-size:42px;
+}
+
+.mode-info{
+ flex:1;
+}
+
+.mode-info h3{
+ margin:0 0 6px;
+ font-size:19px;
+}
+
+.mode-info p{
+ margin:0;
+ color:#b7c5d8;
+ font-size:12px;
+}
+
+.arrow{
+ font-size:25px;
+ color:#ffd34e;
+}
+
+.features{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:12px;
+ margin-top:15px;
+}
+
+.feature{
+ background:#1e2d45;
+ border:1px solid #394f6d;
+ border-radius:13px;
+ padding:15px 8px;
+ text-align:center;
+}
+
+.feature div{
+ font-size:27px;
+ margin-bottom:8px;
+}
+
+.feature span{
+ font-size:12px;
+ color:#d2dbea;
+}
+
+footer{
+ text-align:center;
+ color:#8293aa;
+ font-size:12px;
+ padding:28px 0 10px;
 }
 </style>
 </head>
@@ -99,45 +153,91 @@ input {
 
 <div class="container">
 
-    <div class="logo">🎲</div>
-    <h1>LudoKing</h1>
-    <p class="subtitle">Play Together, Win Together!</p>
+<header>
+ <div class="logo">🎲</div>
+ <h1>LudoKing</h1>
+ <div class="tagline">PLAY TOGETHER • WIN TOGETHER</div>
+</header>
 
-    <button class="offline"
-    onclick="location.href='board.html'">
-        🏠 Play Offline
-        <br>
-        <small>एक मोबाइल पर 2–4 खिलाड़ी</small>
-    </button>
+<div class="banner">
+ <h2>👑 Welcome to LudoKing</h2>
+ <p>Your favourite Ludo game experience starts here!</p>
+</div>
 
-    <button class="online"
-    onclick="showOnline()">
-        🌐 Online Multiplayer
-        <br>
-        <small>अलग-अलग मोबाइल से खेलें</small>
-    </button>
+<div class="section-title">🎮 SELECT GAME MODE</div>
 
-    <div id="online">
+<a class="mode" href="offline.html">
+ <div class="mode-icon">🏠</div>
+ <div class="mode-info">
+  <h3>Offline Multiplayer</h3>
+  <p>एक मोबाइल पर 2, 3 या 4 खिलाड़ी खेलें</p>
+ </div>
+ <div class="arrow">›</div>
+</a>
 
-        <input id="playerName"
-        placeholder="Your Name">
+<a class="mode" href="#" onclick="showOnline(event)">
+ <div class="mode-icon">🌐</div>
+ <div class="mode-info">
+  <h3>Online Multiplayer</h3>
+  <p>दोस्तों के साथ अलग-अलग मोबाइल पर खेलें</p>
+ </div>
+ <div class="arrow">›</div>
+</a>
 
-        <button class="offline" onclick="createRoom()">
-            Create Room
-        </button>
+<div id="online" style="display:none">
 
-        <input id="roomCode"
-        placeholder="Enter Room Code">
+ <div class="section-title">🌐 ONLINE ROOM</div>
 
-        <button class="online" onclick="joinRoom()">
-            Join Room
-        </button>
+ <div style="background:#1e2d45;padding:17px;border-radius:15px">
+  <input id="playerName" placeholder="Your Name"
+  style="width:100%;padding:13px;margin-bottom:10px;border-radius:9px;border:0;background:#101827;color:white">
 
-    </div>
+  <button onclick="createRoom()"
+  style="width:100%;padding:14px;background:#ffd34e;border:0;border-radius:9px;font-weight:bold">
+   Create Room
+  </button>
 
-    <p class="small">
-        © 2026 LudoKing
-    </p>
+  <input id="roomCode" placeholder="Enter Room Code"
+  style="width:100%;padding:13px;margin:12px 0;border-radius:9px;border:0;background:#101827;color:white">
+
+  <button onclick="joinRoom()"
+  style="width:100%;padding:14px;background:#347de0;color:white;border:0;border-radius:9px;font-weight:bold">
+   Join Room
+  </button>
+ </div>
+
+</div>
+
+<div class="section-title">✨ GAME FEATURES</div>
+
+<div class="features">
+
+ <div class="feature">
+  <div>🎵</div>
+  <span>Music & Sound</span>
+ </div>
+
+ <div class="feature">
+  <div>🎨</div>
+  <span>Beautiful Themes</span>
+ </div>
+
+ <div class="feature">
+  <div>🎲</div>
+  <span>Dice Animation</span>
+ </div>
+
+ <div class="feature">
+  <div>🏆</div>
+  <span>Winner Celebration</span>
+ </div>
+
+</div>
+
+<footer>
+ LudoKing © 2026<br>
+ Play Fair • Have Fun
+</footer>
 
 </div>
 
@@ -145,8 +245,11 @@ input {
 <script src="client.js"></script>
 
 <script>
-function showOnline() {
-    document.getElementById("online").style.display = "block";
+function showOnline(event){
+ event.preventDefault();
+ const section=document.getElementById("online");
+ section.style.display="block";
+ section.scrollIntoView({behavior:"smooth"});
 }
 </script>
 
