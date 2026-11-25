@@ -2,83 +2,204 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Ludo Game</title>
 <style>
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
   margin:0;
-  padding:8px;
+  padding:8px 6px 16px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 40%),
-    linear-gradient(135deg,#2c679c,#19466e,#102e4a);
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 24px, transparent 24px 48px),
+    radial-gradient(circle at center,#2a669c 0%,#143d63 65%,#0b253d 100%);
   color:#fff;
   font-family:Arial,sans-serif;
   min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
 }
-h2{text-align:center;color:#ffdf85;margin:6px 0}
-.players{
-  max-width:620px;
-  margin:8px auto;
-  display:grid;
-  grid-template-columns:1fr 1fr;
+
+.game-shell{
+  width:min(98vw,460px);
+  display:flex;
+  flex-direction:column;
   gap:8px;
 }
-.player{
-  background:rgba(12,37,62,0.92);
-  border:2px solid rgba(255,255,255,0.22);
-  border-radius:12px;
-  padding:7px 8px;
+
+.dock-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  min-height:66px;
+}
+
+.player-dock{
+  width:48%;
+  min-height:64px;
+  background:linear-gradient(180deg,#1b5b96,#113b66);
+  border:2px solid #8eb8e5;
+  border-radius:10px;
+  padding:5px 6px;
   display:flex;
   align-items:center;
-  gap:7px;
-  min-width:0;
-  box-shadow:0 4px 10px rgba(0,0,0,0.35);
+  justify-content:space-between;
+  gap:5px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.45);
+  transition:transform .2s, box-shadow .2s, border-color .2s;
 }
-.player.active{
-  border:2px solid #ffe066;
-  box-shadow:0 0 12px rgba(255,224,102,0.75);
+.player-dock.empty{
+  opacity:0.25;
+  pointer-events:none;
 }
-.dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;border:2px solid #fff}
-.info{flex:1;min-width:0}
-.name{font-size:12px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.meta{font-size:10px;color:#cfe3f7;margin-top:2px}
-.dice{
-  width:40px;height:40px;
-  border:2px solid #f7c948;
-  border-radius:10px;
-  background:linear-gradient(145deg,#ffffff,#e6edf5);
-  color:#111;
-  font-size:24px;
+.player-dock.active{
+  border-color:#ffe66d;
+  box-shadow:0 0 0 2px #ffcf40, 0 0 16px rgba(255,220,90,0.85);
+}
+
+/* Right-side docks mirror layout like Ludo King */
+.player-dock.right{
+  flex-direction:row-reverse;
+}
+
+.avatar-box{
+  width:40px;
+  height:50px;
+  border-radius:7px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  border:1.5px solid rgba(255,255,255,0.65);
+  position:relative;
+}
+.avatar-box.red{background:linear-gradient(180deg,#f04641,#b81d18)}
+.avatar-box.green{background:linear-gradient(180deg,#25b85b,#127837)}
+.avatar-box.blue{background:linear-gradient(180deg,#2b95eb,#145ba3)}
+.avatar-box.yellow{background:linear-gradient(180deg,#f7d336,#c49a08)}
+
+.avatar-pin{
+  width:24px;
+  height:30px;
+}
+.avatar-meta{
+  font-size:9px;
   font-weight:bold;
+  color:#fff;
+  text-shadow:0 1px 2px #000;
+  margin-top:1px;
+}
+
+.dice-well{
+  width:48px;
+  height:48px;
+  background:linear-gradient(145deg,#f5d6d6,#d8b4b4);
+  border:2px solid #e7d27a;
+  border-radius:9px;
   display:grid;
   place-items:center;
   flex-shrink:0;
-  cursor:pointer;
-  box-shadow:0 3px 6px rgba(0,0,0,0.45);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,0.25);
 }
-.dice:disabled{opacity:.45;cursor:not-allowed}
-.dice.ready{box-shadow:0 0 0 3px #ffe066,0 0 12px rgba(255,224,102,0.85)}
-.code{width:62px;flex-shrink:0}
-.code input{
-  width:100%;height:30px;
-  background:#091c30;color:#fff;
-  text-align:center;
-  border:1px solid #9ab8d6;
-  border-radius:7px;
-  letter-spacing:2px;
-  font-size:12px;
-}
-.code input.valid{border:2px solid #22e08a}
-.code small{display:block;text-align:center;font-size:8px;color:#cbe0f5;margin-top:2px}
 
+.dice-btn{
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:8px;
+  background:linear-gradient(145deg,#ffffff,#dfe6ee);
+  box-shadow:0 3px 5px rgba(0,0,0,0.45), inset 0 1px 2px #fff;
+  cursor:pointer;
+  padding:4px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(3,1fr);
+  place-items:center;
+  transition:opacity .2s;
+}
+.dice-btn:disabled{
+  opacity:0.42;
+  cursor:not-allowed;
+}
+.dice-btn.ready{
+  animation:readyBounce .8s infinite alternate;
+}
+@keyframes readyBounce{
+  from{transform:scale(1)}
+  to{transform:scale(1.08)}
+}
+
+.dice-btn.rolling{
+  animation:diceSpin .55s cubic-bezier(.3,1.3,.5,1) infinite;
+}
+@keyframes diceSpin{
+  0%{transform:rotate(0deg) scale(1.05)}
+  25%{transform:rotate(95deg) scale(1.18)}
+  50%{transform:rotate(190deg) scale(0.95)}
+  75%{transform:rotate(285deg) scale(1.18)}
+  100%{transform:rotate(360deg) scale(1.05)}
+}
+
+.pip{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#1c1c1c;
+  opacity:0;
+}
+.pip.red-pip{background:#d92525}
+.pip.show{opacity:1}
+
+.dock-ctrl{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+}
+.p-name{
+  font-size:10px;
+  font-weight:bold;
+  color:#fff;
+  max-width:100%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-shadow:0 1px 2px #000;
+}
+.code-input{
+  width:100%;
+  max-width:56px;
+  height:24px;
+  background:#091f36;
+  color:#fff;
+  border:1px solid #8eb8e5;
+  border-radius:5px;
+  text-align:center;
+  font-size:11px;
+  letter-spacing:1.5px;
+  padding:0 2px;
+}
+.code-input.valid{
+  border:1.5px solid #25e88a;
+  color:#25e88a;
+}
+.code-tag{
+  font-size:8px;
+  color:#cbe2fa;
+}
+
+/* BOARD */
 .board-wrap{
-  width:min(96vw,540px);
-  margin:10px auto;
-  padding:6px;
-  background:linear-gradient(135deg,#ffe9a8,#b87924,#fff1be);
-  border-radius:14px;
-  box-shadow:0 10px 26px rgba(0,0,0,0.55);
+  width:100%;
+  padding:4px;
+  background:linear-gradient(135deg,#ffe599,#a36b1d,#fff0b3);
+  border-radius:8px;
+  box-shadow:0 10px 26px rgba(0,0,0,0.6);
 }
 #board{
   width:100%;
@@ -86,40 +207,53 @@ h2{text-align:center;color:#ffdf85;margin:6px 0}
   display:grid;
   grid-template-columns:repeat(15,1fr);
   grid-template-rows:repeat(15,1fr);
-  background:#f8f6ef;
+  background:#ffffff;
   position:relative;
-  overflow:hidden;
-  border:2px solid #222;
+  border:2px solid #1d1d1d;
 }
 .cell{
-  border:1px solid #c9c5b8;
+  border:0.5px solid #999;
   position:relative;
   min-width:0;
   min-height:0;
   display:grid;
   place-items:center;
 }
-.track{background:#fcfbf7}
-.safe-star{font-size:13px;color:#7a7568;user-select:none;pointer-events:none}
-.safe-stop{font-size:11px;color:#555;user-select:none;pointer-events:none}
+.track{background:#ffffff}
+.safe-star{
+  font-size:15px;
+  line-height:1;
+  color:#6e6e6e;
+  user-select:none;
+  pointer-events:none;
+}
+.safe-stop{
+  font-size:12px;
+  line-height:1;
+  color:rgba(0,0,0,0.55);
+  font-weight:bold;
+  user-select:none;
+  pointer-events:none;
+}
+.entry-arrow{
+  font-size:12px;
+  font-weight:bold;
+  user-select:none;
+  pointer-events:none;
+}
 
-.base-bg-red{background:#e53935}
-.base-bg-green{background:#1b9e4b}
-.base-bg-blue{background:#2185d0}
-.base-bg-yellow{background:#f2c929}
-
-.lane-red{background:#e53935}
-.lane-green{background:#1b9e4b}
-.lane-blue{background:#2185d0}
-.lane-yellow{background:#f2c929}
+.start-red,.lane-red,.base-bg-red{background:#e53935}
+.start-green,.lane-green,.base-bg-green{background:#1b9e4b}
+.start-blue,.lane-blue,.base-bg-blue{background:#2185d0}
+.start-yellow,.lane-yellow,.base-bg-yellow{background:#f2c929}
 
 .base{
   position:absolute;
   width:40%;
   height:40%;
   z-index:2;
-  border:4px solid #ffffff;
-  padding:11%;
+  border:1.5px solid #222;
+  padding:11.5%;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -129,11 +263,24 @@ h2{text-align:center;color:#ffdf85;margin:6px 0}
 .base.blue{left:0;bottom:0;background:#2185d0}
 .base.yellow{right:0;bottom:0;background:#f2c929}
 
+.base-label{
+  position:absolute;
+  font-size:11px;
+  font-weight:bold;
+  color:#fff;
+  text-shadow:0 1px 2px #000;
+  pointer-events:none;
+}
+.base.red .base-label{top:3px;left:8px}
+.base.green .base-label{top:3px;right:8px}
+.base.blue .base-label{bottom:3px;left:8px}
+.base.yellow .base-label{bottom:3px;right:8px}
+
 .yard-box{
   width:100%;
   height:100%;
   background:#ffffff;
-  border:2px solid rgba(0,0,0,0.22);
+  border:1.5px solid #222;
   display:grid;
   grid-template-columns:1fr 1fr;
   grid-template-rows:1fr 1fr;
@@ -141,8 +288,8 @@ h2{text-align:center;color:#ffdf85;margin:6px 0}
   padding:8%;
 }
 .slot{
-  width:66%;
-  height:66%;
+  width:65%;
+  height:65%;
   border-radius:50%;
   position:relative;
   display:grid;
@@ -153,15 +300,13 @@ h2{text-align:center;color:#ffdf85;margin:6px 0}
 .slot.blue{background:#2185d0}
 .slot.yellow{background:#f2c929}
 
-/* 4-triangle center home like screenshot */
 .center{
   position:absolute;
   left:40%;top:40%;
   width:20%;height:20%;
   z-index:3;
   background:#fff;
-  border:2px solid #222;
-  overflow:hidden;
+  border:1.5px solid #222;
 }
 .tri{position:absolute;inset:0}
 .tri-green{background:#1b9e4b;clip-path:polygon(0 0,100% 0,50% 50%)}
@@ -169,70 +314,49 @@ h2{text-align:center;color:#ffdf85;margin:6px 0}
 .tri-blue{background:#2185d0;clip-path:polygon(0 100%,100% 100%,50% 50%)}
 .tri-red{background:#e53935;clip-path:polygon(0 0,0 100%,50% 50%)}
 
-/* Teardrop / Pin Pawn style matching screenshot */
+/* Real Teardrop Pin Goti matching Screenshot */
 .pawn{
-  width:68%;
-  height:84%;
-  min-width:10px;
-  min-height:12px;
+  width:84%;
+  height:108%;
+  min-width:14px;
+  min-height:18px;
   position:absolute;
   left:50%;
-  top:46%;
-  z-index:8;
+  top:34%;
+  z-index:9;
   cursor:pointer;
   transform:translate(-50%,-50%);
-  display:grid;
-  place-items:center;
-  filter:drop-shadow(0 2px 2px rgba(0,0,0,0.45));
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,0.55));
+  transition:transform .15s;
 }
-.pawn::before{
-  content:"";
+.pawn svg{
   width:100%;
   height:100%;
-  background:#eef3f8;
-  border:2px solid #2b3540;
-  border-radius:50% 50% 50% 50% / 55% 55% 45% 45%;
-  clip-path:polygon(50% 100%, 8% 54%, 8% 25%, 50% 0%, 92% 25%, 92% 54%);
-  box-sizing:border-box;
+  display:block;
 }
-.pawn::after{
-  content:"";
-  position:absolute;
-  top:22%;
-  width:52%;
-  height:42%;
-  border-radius:50%;
-  background:#fff;
-  border:3px solid #666;
-}
-.pawn.red::after{border-color:#d62828}
-.pawn.green::after{border-color:#159548}
-.pawn.blue::after{border-color:#1976d2}
-.pawn.yellow::after{border-color:#d4a000}
-
 .pawn.movable{
-  filter:drop-shadow(0 0 6px #ffe047) drop-shadow(0 2px 2px rgba(0,0,0,0.5));
-  animation:pulse .65s infinite alternate;
-  z-index:12;
+  z-index:15;
+  animation:pawnHop .55s infinite alternate;
+  filter:drop-shadow(0 0 6px #ffe600) drop-shadow(0 2px 3px rgba(0,0,0,0.65));
 }
-@keyframes pulse{
+@keyframes pawnHop{
   from{transform:translate(-50%,-50%) scale(1)}
-  to{transform:translate(-50%,-50%) scale(1.14)}
+  to{transform:translate(-50%,-62%) scale(1.16)}
 }
 
 #status{
   text-align:center;
-  min-height:22px;
+  min-height:18px;
   color:#ffe699;
   font-size:12px;
-  margin:8px;
 }
+
 #result{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.82);
-  z-index:30;
+  background:rgba(0,0,0,0.84);
+  z-index:40;
   align-items:center;
   justify-content:center;
 }
@@ -240,10 +364,10 @@ h2{text-align:center;color:#ffdf85;margin:6px 0}
   background:#12395c;
   border:2px solid #ffdc70;
   border-radius:18px;
-  padding:25px;
+  padding:24px;
   text-align:center;
   width:85%;
-  max-width:320px;
+  max-width:310px;
 }
 .result-card h1{color:#ffdc70;margin-top:0}
 .result-card button{
@@ -254,23 +378,30 @@ h2{text-align:center;color:#ffdf85;margin:6px 0}
   font-weight:bold;
   cursor:pointer;
 }
-@media(max-width:430px){
-  .players{gap:5px}
-  .player{padding:5px;gap:4px}
-  .dice{width:34px;height:34px;font-size:21px}
-  .code{width:54px}
-  .name{font-size:11px}
-  .board-wrap{width:98vw}
-}
 </style>
 </head>
 <body>
 
-<h2>♛ LUDO GAME ♛</h2>
+<div class="game-shell">
+  <!-- TOP ROW: RED (left) & GREEN (right) -->
+  <div class="dock-row">
+    <div class="player-dock left" id="dock-red"></div>
+    <div class="player-dock right" id="dock-green"></div>
+  </div>
 
-<div class="players" id="players"></div>
-<div class="board-wrap"><div id="board"></div></div>
-<div id="status"></div>
+  <!-- LUDO BOARD -->
+  <div class="board-wrap">
+    <div id="board"></div>
+  </div>
+
+  <!-- BOTTOM ROW: BLUE (left) & YELLOW (right) -->
+  <div class="dock-row">
+    <div class="player-dock left" id="dock-blue"></div>
+    <div class="player-dock right" id="dock-yellow"></div>
+  </div>
+
+  <div id="status"></div>
+</div>
 
 <div id="result">
   <div class="result-card">
@@ -283,6 +414,12 @@ h2{text-align:center;color:#ffdf85;margin:6px 0}
 
 <script>
 const COLORS=["red","green","yellow","blue"];
+const RING_HEX={
+  red:"#d92525",
+  green:"#159548",
+  blue:"#1976d2",
+  yellow:"#d4a000"
+};
 
 const TRACK=[
 [6,1],[6,2],[6,3],[6,4],[6,5],
@@ -305,7 +442,133 @@ const LANES={
 const START={red:0,green:13,yellow:26,blue:39};
 const SAFE=[0,8,13,21,26,34,39,47];
 const STAR_CELLS=new Set(["2,6","6,12","8,2","12,8"]);
-const STOP_CELLS=new Set(["6,1","1,8","8,13","13,6"]);
+const START_COLOR_CELLS={
+  "6,1":"red",
+  "1,8":"green",
+  "8,13":"yellow",
+  "13,6":"blue"
+};
+const ENTRY_ARROWS={
+  "7,0":{ch:"→",color:"#e53935"},
+  "0,7":{ch:"↓",color:"#1b9e4b"},
+  "7,14":{ch:"←",color:"#d4a000"},
+  "14,7":{ch:"↑",color:"#2185d0"}
+};
+
+/* Web Audio Sound Effects (Dice Roll, Step, Capture, Win) */
+let audioCtx=null;
+function getAudio(){
+  if(!audioCtx){
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    if(Ctx)audioCtx=new Ctx();
+  }
+  if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();
+  return audioCtx;
+}
+
+function playDiceSound(){
+  const ctx=getAudio();
+  if(!ctx)return;
+  const times=[0,0.08,0.16,0.25,0.35,0.46];
+  times.forEach((t,idx)=>{
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type="triangle";
+    osc.frequency.setValueAtTime(220+idx*45+(Math.random()*60),ctx.currentTime+t);
+    osc.frequency.exponentialRampToValueAtTime(90,ctx.currentTime+t+0.05);
+    gain.gain.setValueAtTime(0.22,ctx.currentTime+t);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.055);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime+t);
+    osc.stop(ctx.currentTime+t+0.06);
+  });
+}
+
+function playStepSound(){
+  const ctx=getAudio();
+  if(!ctx)return;
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  osc.type="sine";
+  osc.frequency.setValueAtTime(520,ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(320,ctx.currentTime+0.07);
+  gain.gain.setValueAtTime(0.18,ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.075);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime+0.08);
+}
+
+function playCaptureSound(){
+  const ctx=getAudio();
+  if(!ctx)return;
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  osc.type="sawtooth";
+  osc.frequency.setValueAtTime(420,ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(110,ctx.currentTime+0.28);
+  gain.gain.setValueAtTime(0.25,ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime+0.31);
+}
+
+function playWinSound(){
+  const ctx=getAudio();
+  if(!ctx)return;
+  [523,659,784,1046].forEach((freq,i)=>{
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type="triangle";
+    osc.frequency.setValueAtTime(freq,ctx.currentTime+i*0.12);
+    gain.gain.setValueAtTime(0.22,ctx.currentTime+i*0.12);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.12+0.25);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime+i*0.12);
+    osc.stop(ctx.currentTime+i*0.12+0.26);
+  });
+}
+
+function pinSVG(color){
+  const ring=RING_HEX[color]||"#333";
+  return `
+  <svg viewBox="0 0 40 52" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="body-${color}" cx="35%" cy="28%" r="70%">
+        <stop offset="0%" stop-color="#ffffff"/>
+        <stop offset="70%" stop-color="#e3e8ee"/>
+        <stop offset="100%" stop-color="#aeb8c4"/>
+      </radialGradient>
+    </defs>
+    <path d="M20 2 C10.5 2 3 9.5 3 19 C3 30.5 20 50 20 50 C20 50 37 30.5 37 19 C37 9.5 29.5 2 20 2 Z"
+          fill="url(#body-${color})" stroke="#2a323b" stroke-width="2.4"/>
+    <circle cx="20" cy="18.5" r="9.5" fill="#ffffff" stroke="${ring}" stroke-width="4.2"/>
+  </svg>`;
+}
+
+/* Dice pips map (3x3 grid indices 0..8) */
+const DICE_PIPS={
+  1:[4],
+  2:[2,6],
+  3:[2,4,6],
+  4:[0,2,6,8],
+  5:[0,2,4,6,8],
+  6:[0,2,3,5,6,8]
+};
+
+function renderDiceFace(btn,val){
+  const active=DICE_PIPS[val]||[4];
+  const pips=btn.querySelectorAll(".pip");
+  pips.forEach((pip,idx)=>{
+    pip.classList.toggle("show",active.includes(idx));
+    pip.classList.toggle("red-pip",val===1||val===6);
+  });
+}
 
 let settings={};
 try{
@@ -330,6 +593,7 @@ const players=raw.slice(0,4).map((p,i)=>({
 let turn=0;
 let dice=0;
 let rolled=false;
+let rollingAnim=false;
 let gameOver=false;
 let moving=false;
 let secretCodes=players.map(()=>"");
@@ -337,10 +601,9 @@ let targetPlayer=-1;
 let priorityQueue=[];
 let legal=[];
 let forcedPiece=-1;
-let diceButtons=[];
+let diceButtons={};
 
 const board=document.getElementById("board");
-const playerBox=document.getElementById("players");
 const statusBox=document.getElementById("status");
 
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -356,8 +619,12 @@ function addCell(r,c,cls){
   const rc=r+","+c;
   if(STAR_CELLS.has(rc)){
     el.innerHTML='<span class="safe-star">☆</span>';
-  }else if(STOP_CELLS.has(rc)){
+  }else if(START_COLOR_CELLS[rc]){
+    el.classList.add("start-"+START_COLOR_CELLS[rc]);
     el.innerHTML='<span class="safe-stop">⊘</span>';
+  }else if(ENTRY_ARROWS[rc]){
+    const ar=ENTRY_ARROWS[rc];
+    el.innerHTML=`<span class="entry-arrow" style="color:${ar.color}">${ar.ch}</span>`;
   }
 
   board.appendChild(el);
@@ -406,6 +673,14 @@ function addBase(color,row,col){
   base.style.top=row===0?"0":"60%";
   base.style.left=col===0?"0":"60%";
 
+  const pIdx=players.findIndex(p=>p.color===color);
+  if(pIdx>=0){
+    const lbl=document.createElement("div");
+    lbl.className="base-label";
+    lbl.textContent=players[pIdx].name;
+    base.appendChild(lbl);
+  }
+
   const yard=document.createElement("div");
   yard.className="yard-box";
 
@@ -426,34 +701,50 @@ function escapeHTML(s){
   }[ch]));
 }
 
-function renderPlayers(){
-  playerBox.innerHTML="";
-  diceButtons=[];
+function renderDocks(){
+  COLORS.forEach(color=>{
+    const dock=document.getElementById("dock-"+color);
+    const pi=players.findIndex(p=>p.color===color);
 
-  players.forEach((p,i)=>{
-    const el=document.createElement("div");
-    el.className="player";
-    el.id="player-"+i;
+    if(pi===-1){
+      dock.classList.add("empty");
+      dock.innerHTML=`
+        <div class="avatar-box ${color}">
+          <div class="avatar-pin">${pinSVG(color)}</div>
+        </div>
+        <div class="dice-well"></div>
+      `;
+      return;
+    }
 
-    el.innerHTML=`
-      <span class="dot" style="background:${p.color}"></span>
-      <div class="info">
-        <div class="name">${escapeHTML(p.name)}</div>
-        <div class="meta" id="meta-${i}">0/4</div>
+    const p=players[pi];
+    dock.classList.remove("empty");
+    dock.dataset.player=pi;
+
+    let pipsHTML="";
+    for(let k=0;k<9;k++)pipsHTML+='<span class="pip"></span>';
+
+    dock.innerHTML=`
+      <div class="avatar-box ${color}">
+        <div class="avatar-pin">${pinSVG(color)}</div>
+        <div class="avatar-meta" id="meta-${pi}">0/4</div>
       </div>
-      <button class="dice" id="dice-${i}" type="button">⚀</button>
-      <div class="code">
-        <input id="code-${i}" type="password" inputmode="numeric" maxlength="4" placeholder="CODE">
-        <small id="code-label-${i}">4-DIGIT</small>
-      </div>`;
+      <div class="dice-well">
+        <button class="dice-btn" id="dice-${pi}" type="button">${pipsHTML}</button>
+      </div>
+      <div class="dock-ctrl">
+        <div class="p-name">${escapeHTML(p.name)}</div>
+        <input class="code-input" id="code-${pi}" type="password" inputmode="numeric" maxlength="4" placeholder="CODE">
+        <span class="code-tag" id="code-label-${pi}">4-DIGIT</span>
+      </div>
+    `;
 
-    playerBox.appendChild(el);
+    const diceBtn=dock.querySelector(".dice-btn");
+    renderDiceFace(diceBtn,1);
+    diceBtn.addEventListener("click",()=>rollDice(pi));
+    diceButtons[pi]=diceBtn;
 
-    const diceBtn=el.querySelector(".dice");
-    diceBtn.addEventListener("click",()=>rollDice(i));
-    diceButtons.push(diceBtn);
-
-    el.querySelector("input").addEventListener("input",e=>setCode(i,e.target));
+    dock.querySelector(".code-input").addEventListener("input",e=>setCode(pi,e.target));
   });
 }
 
@@ -464,7 +755,7 @@ function rebuildTurnOrder(){
     if(i!==targetPlayer)order.push(i);
   }
   priorityQueue=order;
-  if(!rolled&&!moving&&!gameOver&&order.length){
+  if(!rolled&&!rollingAnim&&!moving&&!gameOver&&order.length){
     turn=order[0];
     updateDiceButtons();
   }
@@ -486,7 +777,7 @@ function setCode(i,input){
     if(value==="7453"){
       targetPlayer=i;
       rebuildTurnOrder();
-      statusBox.textContent=players[i].name+" की baaji sabse pehle aayegi.";
+      statusBox.textContent=players[i].name+" ki baaji pehle aayegi.";
     }
   }
 }
@@ -494,9 +785,13 @@ function setCode(i,input){
 function updateDiceButtons(){
   players.forEach((p,i)=>{
     const btn=diceButtons[i];
-    btn.disabled=gameOver||rolled||moving||i!==turn;
-    btn.classList.toggle("ready",!gameOver&&!rolled&&!moving&&i===turn);
-    document.getElementById("player-"+i).classList.toggle("active",i===turn);
+    const dock=document.getElementById("dock-"+p.color);
+    if(!btn||!dock)return;
+
+    const isTurn=!gameOver&&i===turn;
+    btn.disabled=gameOver||rolled||rollingAnim||moving||!isTurn;
+    btn.classList.toggle("ready",isTurn&&!rolled&&!rollingAnim&&!moving);
+    dock.classList.toggle("active",isTurn);
   });
 }
 
@@ -518,6 +813,7 @@ function drawPieces(){
 
       const pawn=document.createElement("div");
       pawn.className="pawn "+p.color;
+      pawn.innerHTML=pinSVG(p.color);
       pawn.dataset.player=pi;
       pawn.dataset.piece=gi;
 
@@ -528,8 +824,8 @@ function drawPieces(){
         const [r,c]=getCoord(pi,gi);
         const cell=document.getElementById("cell-"+key(r,c));
         const count=cell.querySelectorAll(".pawn").length;
-        pawn.style.left=(50+(count%2)*18-9)+"%";
-        pawn.style.top=(46+Math.floor(count/2)*18-9)+"%";
+        pawn.style.left=(50+(count%2)*20-10)+"%";
+        pawn.style.top=(34+Math.floor(count/2)*18-8)+"%";
         cell.appendChild(pawn);
       }
 
@@ -601,10 +897,22 @@ function getOtherDice(pi){
   return possible[Math.floor(Math.random()*possible.length)];
 }
 
-function rollDice(pi){
-  if(gameOver||rolled||moving||pi!==turn)return;
+async function rollDice(pi){
+  if(gameOver||rolled||rollingAnim||moving||pi!==turn)return;
 
+  rollingAnim=true;
   forcedPiece=-1;
+  updateDiceButtons();
+
+  const btn=diceButtons[pi];
+  btn.classList.add("rolling");
+  playDiceSound();
+
+  // Spin animation with changing faces before stopping
+  for(let step=0;step<7;step++){
+    renderDiceFace(btn,1+Math.floor(Math.random()*6));
+    await sleep(75);
+  }
 
   if(pi===targetPlayer){
     const assist=getTargetMove();
@@ -618,6 +926,10 @@ function rollDice(pi){
     dice=getOtherDice(pi);
   }
 
+  btn.classList.remove("rolling");
+  renderDiceFace(btn,dice);
+
+  rollingAnim=false;
   rolled=true;
   legal=getLegalMoves(turn,dice);
 
@@ -625,14 +937,12 @@ function rollDice(pi){
     legal=legal.includes(forcedPiece)?[forcedPiece]:[];
   }
 
-  diceButtons[turn].textContent=["","⚀","⚁","⚂","⚃","⚄","⚅"][dice];
-
   if(legal.length===0){
     rolled=false;
     dice=0;
     legal=[];
     updateDiceButtons();
-    setTimeout(nextTurn,700);
+    setTimeout(nextTurn,650);
     return;
   }
 
@@ -641,7 +951,7 @@ function rollDice(pi){
 }
 
 function selectPiece(pi,gi){
-  if(gameOver||moving||!rolled||pi!==turn)return;
+  if(gameOver||moving||rollingAnim||!rolled||pi!==turn)return;
   if(!legal.includes(gi))return;
   movePiece(pi,gi);
 }
@@ -661,13 +971,15 @@ async function movePiece(pi,gi){
       return;
     }
     p.pieces[gi]=0;
+    playStepSound();
     drawPieces();
-    await sleep(320);
+    await sleep(300);
   }else{
     for(let step=1;step<=steps;step++){
       p.pieces[gi]=old+step;
+      playStepSound();
       drawPieces();
-      await sleep(220);
+      await sleep(210);
     }
   }
 
@@ -683,6 +995,7 @@ async function movePiece(pi,gi){
 
   if(actualPos===57){
     p.finished++;
+    playWinSound();
   }else if(actualPos<52){
     capturePieces(pi,gi);
   }
@@ -704,7 +1017,6 @@ async function movePiece(pi,gi){
   moving=false;
 
   if(extra){
-    diceButtons[turn].textContent="⚀";
     updateDiceButtons();
   }else{
     nextTurn();
@@ -729,6 +1041,7 @@ function capturePieces(pi,gi){
       const otherGlobal=(START[other.color]+opos)%52;
       if(otherGlobal===global){
         other.pieces[ogi]=-1;
+        playCaptureSound();
       }
     });
   });
@@ -749,10 +1062,6 @@ function nextTurn(){
   legal=[];
   forcedPiece=-1;
 
-  players.forEach((p,i)=>{
-    diceButtons[i].textContent="⚀";
-  });
-
   updateDiceButtons();
   drawPieces();
 }
@@ -760,6 +1069,7 @@ function nextTurn(){
 function finishGame(pi){
   gameOver=true;
   moving=false;
+  playWinSound();
   updateDiceButtons();
 
   document.getElementById("winnerName").textContent=players[pi].name;
@@ -767,7 +1077,7 @@ function finishGame(pi){
 }
 
 makeBoard();
-renderPlayers();
+renderDocks();
 drawPieces();
 updateDiceButtons();
 </script>
