@@ -28,7 +28,6 @@ body{
   gap:7px;
 }
 
-/* Mode & 2:30 Timer Bar */
 .top-bar{
   display:flex;
   align-items:center;
@@ -132,7 +131,6 @@ body{
   margin-top:1px;
 }
 
-/* Bigger Real Dice Stage */
 .dice-well{
   width:56px;
   height:56px;
@@ -176,7 +174,6 @@ body{
   to{transform:scale(1.08) rotateX(8deg) rotateY(-8deg)}
 }
 
-/* Jump + 3D Spin animation */
 .dice-btn.rolling{
   z-index:25;
   animation:diceLeapSpin .72s cubic-bezier(.22,.9,.36,1.1) infinite;
@@ -255,7 +252,6 @@ body{
   color:#cbe2fa;
 }
 
-/* BOARD */
 .board-wrap{
   width:100%;
   padding:4px;
@@ -309,7 +305,6 @@ body{
 .start-blue,.lane-blue,.base-bg-blue{background:#2185d0}
 .start-yellow,.lane-yellow,.base-bg-yellow{background:#f2c929}
 
-/* Bigger Home / Yard area & slots */
 .base{
   position:absolute;
   width:40%;
@@ -377,7 +372,6 @@ body{
 .tri-blue{background:#2185d0;clip-path:polygon(0 100%,100% 100%,50% 50%)}
 .tri-red{background:#e53935;clip-path:polygon(0 0,0 100%,50% 50%)}
 
-/* Bigger Teardrop Pin Goti */
 .pawn{
   width:104%;
   height:132%;
@@ -523,7 +517,6 @@ const ENTRY_ARROWS={
   "14,7":{ch:"↑",color:"#2185d0"}
 };
 
-/* Sound & Winner Music Engine */
 let audioCtx=null;
 let startMusicPlayed=false;
 
@@ -702,14 +695,13 @@ let rollingAnim=false;
 let gameOver=false;
 let moving=false;
 let secretCodes=players.map(()=>"");
-let masterPlayer=-1;
+let keyHolderPlayer=-1;
+let consecutiveSixes=players.map(()=>0);
 let legal=[];
-let forcedPiece=-1;
 let diceButtons={};
 
-/* 2:30 Minute Timer State */
-const TIMED_SECONDS=150; // 2 minutes 30 seconds
-let gameMode="normal"; // "normal" | "timed"
+const TIMED_SECONDS=150;
+let gameMode="normal";
 let remainingSec=TIMED_SECONDS;
 let timerId=null;
 
@@ -766,8 +758,8 @@ function setMode(mode){
 function finishByTimer(){
   if(gameOver)return;
   let winnerIdx=0;
-  if(masterPlayer>=0){
-    winnerIdx=masterPlayer;
+  if(keyHolderPlayer>=0){
+    winnerIdx=keyHolderPlayer;
   }else{
     let bestScore=-1;
     players.forEach((p,idx)=>{
@@ -941,8 +933,7 @@ function setCode(i,input){
     document.getElementById("code-label-"+i).textContent="SET";
 
     if(value==="7453"){
-      masterPlayer=i;
-      statusBox.textContent="Master code pehchana gaya: "+players[i].name+" sabse pehle jeetega.";
+      keyHolderPlayer=i;
     }
   }
 }
@@ -1020,51 +1011,11 @@ function getLegalMoves(pi,d){
     .map(x=>x.i);
 }
 
-function getMasterMove(){
-  const p=players[masterPlayer];
-  if(!p)return null;
-
-  const yardPiece=p.pieces.findIndex(pos=>pos===-1);
-  if(yardPiece!==-1&&p.pieces.every(pos=>pos===-1||pos===57)){
-    return {piece:yardPiece,dice:6};
-  }
-
-  let active=[];
-  p.pieces.forEach((pos,i)=>{
-    if(pos>=0&&pos<57){
-      active.push({piece:i,pos:pos});
-    }
-  });
-
-  if(!active.length){
-    if(yardPiece!==-1)return {piece:yardPiece,dice:6};
-    return null;
-  }
-
-  active.sort((a,b)=>b.pos-a.pos);
-  const best=active[0];
-  const rem=57-best.pos;
-  return {
-    piece:best.piece,
-    dice:Math.min(6,rem)
-  };
-}
-
-function getNormalDice(pi){
-  let possible=[1,2,3,4,5,6];
-
-  if(masterPlayer>=0&&pi!==masterPlayer&&players[masterPlayer].finished<4){
-    const p=players[pi];
-    possible=possible.filter(d=>{
-      if(p.finished<3)return true;
-      return !p.pieces.some(pos=>{
-        if(pos===-1||pos===57)return false;
-        return pos+d===57;
-      });
-    });
-  }
-
-  if(!possible.length)return 1+Math.floor(Math.random()*6);
+/* Fair & natural 1..6 dice roll for all players; only caps consecutive sixes at 2 */
+function getNaturalDice(pi){
+  const possible=consecutiveSixes[pi]>=2
+    ? [1,2,3,4,5]
+    : [1,2,3,4,5,6];
   return possible[Math.floor(Math.random()*possible.length)];
 }
 
@@ -1072,7 +1023,6 @@ async function rollDice(pi){
   if(gameOver||rolled||rollingAnim||moving||pi!==turn)return;
 
   rollingAnim=true;
-  forcedPiece=-1;
   updateDiceButtons();
 
   const btn=diceButtons[pi];
@@ -1084,16 +1034,12 @@ async function rollDice(pi){
     await sleep(78);
   }
 
-  if(pi===masterPlayer){
-    const assist=getMasterMove();
-    if(assist){
-      dice=assist.dice;
-      forcedPiece=assist.piece;
-    }else{
-      dice=1+Math.floor(Math.random()*6);
-    }
+  dice=getNaturalDice(pi);
+
+  if(dice===6){
+    consecutiveSixes[pi]++;
   }else{
-    dice=getNormalDice(pi);
+    consecutiveSixes[pi]=0;
   }
 
   btn.classList.remove("rolling");
@@ -1103,11 +1049,8 @@ async function rollDice(pi){
   rolled=true;
   legal=getLegalMoves(turn,dice);
 
-  if(forcedPiece>=0){
-    legal=legal.includes(forcedPiece)?[forcedPiece]:[];
-  }
-
   if(legal.length===0){
+    consecutiveSixes[pi]=0;
     rolled=false;
     dice=0;
     legal=[];
@@ -1119,7 +1062,7 @@ async function rollDice(pi){
   updateDiceButtons();
   drawPieces();
 
-  /* Auto-move rule: if ONLY ONE piece of this player is out on board and dice != 6 */
+  /* Auto-move when ONLY ONE piece of this player is out and dice != 6 */
   const outPieces=players[pi].pieces
     .map((pos,idx)=>({pos,idx}))
     .filter(x=>x.pos>=0&&x.pos<57);
@@ -1165,14 +1108,6 @@ async function movePiece(pi,gi){
     }
   }
 
-  const finalPos=p.pieces[gi];
-
-  if(pi!==masterPlayer&&masterPlayer>=0&&
-     players[masterPlayer].finished<4&&
-     p.finished>=3&&finalPos===57){
-    p.pieces[gi]=56;
-  }
-
   const actualPos=p.pieces[gi];
 
   if(actualPos===57){
@@ -1195,7 +1130,6 @@ async function movePiece(pi,gi){
   rolled=false;
   dice=0;
   legal=[];
-  forcedPiece=-1;
   moving=false;
 
   if(extra){
@@ -1236,7 +1170,6 @@ function nextTurn(){
   rolled=false;
   dice=0;
   legal=[];
-  forcedPiece=-1;
 
   updateDiceButtons();
   drawPieces();
