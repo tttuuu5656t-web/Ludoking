@@ -2,106 +2,153 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LudoKing - Play Online</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LudoKing</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(145deg,#101827,#202f48);
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    background: #19263b;
+    padding: 28px 20px;
+    border-radius: 22px;
+    box-shadow: 0 15px 40px #0006;
+}
+
+.logo {
+    font-size: 65px;
+}
+
+h1 {
+    color: #ffd34e;
+    font-size: 34px;
+    margin: 8px 0;
+}
+
+.subtitle {
+    color: #b7c4d8;
+    margin-bottom: 28px;
+}
+
+button {
+    width: 100%;
+    padding: 16px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.offline {
+    background: #ffd34e;
+    color: #182033;
+}
+
+.online {
+    background: #347de0;
+    color: white;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    margin: 8px 0;
+    border: 1px solid #50617b;
+    border-radius: 10px;
+    background: #101827;
+    color: white;
+    font-size: 16px;
+}
+
+#online {
+    display: none;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #40506a;
+}
+
+.small {
+    color: #aab8cc;
+    font-size: 13px;
+    margin-top: 20px;
+}
+</style>
 </head>
+
 <body>
 
-    <header class="top-header">
-        <div class="logo">🎲 LudoKing</div>
-        <div class="online-status">
-            <span class="dot"></span> Online
-        </div>
-    </header>
+<div class="container">
 
-    <main class="container">
+    <div class="logo">🎲</div>
+    <h1>LudoKing</h1>
+    <p class="subtitle">Play Together, Win Together!</p>
 
-        <section class="welcome">
-            <h1>Welcome to LudoKing</h1>
-            <p>Play Ludo with your friends!</p>
-        </section>
+    <button class="offline"
+    onclick="location.href='board.html'">
+        🏠 Play Offline
+        <br>
+        <small>एक मोबाइल पर 2–4 खिलाड़ी</small>
+    </button>
 
-        <section class="game-card">
+    <button class="online"
+    onclick="showOnline()">
+        🌐 Online Multiplayer
+        <br>
+        <small>अलग-अलग मोबाइल से खेलें</small>
+    </button>
 
-            <h2>🎮 Play Game</h2>
+    <div id="online">
 
-            <label for="playerName">Enter Your Name</label>
-            <input
-                type="text"
-                id="playerName"
-                maxlength="20"
-                placeholder="Your name"
-            >
+        <input id="playerName"
+        placeholder="Your Name">
 
-            <button id="createBtn">
-                ➕ Create Room
-            </button>
+        <button class="offline" onclick="createRoom()">
+            Create Room
+        </button>
 
-            <div class="divider">OR</div>
+        <input id="roomCode"
+        placeholder="Enter Room Code">
 
-            <input
-                type="text"
-                id="roomCode"
-                maxlength="6"
-                placeholder="Enter Room Code"
-            >
+        <button class="online" onclick="joinRoom()">
+            Join Room
+        </button>
 
-            <button id="joinBtn" class="join-btn">
-                Join Room
-            </button>
+    </div>
 
-            <p id="message">Create a room or join your friend's room.</p>
+    <p class="small">
+        © 2026 LudoKing
+    </p>
 
-        </section>
+</div>
 
-        <section id="roomPanel" class="room-card hidden">
+<script src="/socket.io/socket.io.js"></script>
+<script src="client.js"></script>
 
-            <h2>🏠 Waiting Room</h2>
-
-            <p>Room Code</p>
-            <div id="roomCodeDisplay" class="room-code"></div>
-
-            <h3>Players</h3>
-            <ul id="playerList"></ul>
-
-            <p class="waiting-text">
-                Waiting for other players...
-            </p>
-
-        </section>
-
-        <section class="features">
-
-            <div class="feature">
-                <span>👥</span>
-                <h3>Multiplayer</h3>
-                <p>Play with friends</p>
-            </div>
-
-            <div class="feature">
-                <span>🎯</span>
-                <h3>Classic Ludo</h3>
-                <p>Enjoy the classic game</p>
-            </div>
-
-            <div class="feature">
-                <span>🏆</span>
-                <h3>Winner</h3>
-                <p>Become the champion</p>
-            </div>
-
-        </section>
-
-    </main>
-
-    <footer>
-        LudoKing © 2026
-    </footer>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="client.js"></script>
+<script>
+function showOnline() {
+    document.getElementById("online").style.display = "block";
+}
+</script>
 
 </body>
 </html>
