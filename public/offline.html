@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LudoKing Offline</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#101827;color:white;
+ font-family:Arial,sans-serif;padding:18px;
+}
+.container{max-width:480px;margin:auto}
+h1{text-align:center;color:#ffd34e}
+.subtitle{text-align:center;color:#aebbd0}
+.card{
+ background:#202e45;padding:18px;
+ border-radius:16px;margin:16px 0;
+}
+h3{color:#ffd34e;margin-top:0}
+button,select,input{
+ border:0;border-radius:10px;padding:13px;
+ font-size:16px;
+}
+button{cursor:pointer;font-weight:bold}
+.counts{display:flex;gap:10px}
+.counts button{flex:1;background:#354761;color:white}
+.counts button.active{background:#ffd34e;color:#172033}
+input,select{
+ width:100%;margin:7px 0;
+ background:#101827;color:white;
+ border:1px solid #52617a;
+}
+.row{
+ display:flex;justify-content:space-between;
+ align-items:center;padding:12px 0;
+ border-bottom:1px solid #40506a;
+}
+.switch{width:23px;height:23px;accent-color:#ffd34e}
+.start{
+ width:100%;background:#ffd34e;
+ color:#182033;font-size:19px;padding:16px;
+}
+.back{
+ background:#354761;color:white;width:100%;
+ margin-top:10px;
+}
+small{color:#aebbd0}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🎲 LudoKing</h1>
+<p class="subtitle">Offline Game Settings</p>
+
+<div class="card">
+<h3>👥 Players चुनें</h3>
+<div class="counts">
+<button class="active" onclick="setPlayers(2,this)">2</button>
+<button onclick="setPlayers(3,this)">3</button>
+<button onclick="setPlayers(4,this)">4</button>
+</div>
+<div id="names"></div>
+</div>
+
+<div class="card">
+<h3>🔊 Sound Settings</h3>
+<div class="row">
+Music
+<input class="switch" type="checkbox" id="music" checked>
+</div>
+<div class="row">
+Game Sound
+<input class="switch" type="checkbox" id="sound" checked>
+</div>
+<div class="row">
+Vibration
+<input class="switch" type="checkbox" id="vibration" checked>
+</div>
+</div>
+
+<div class="card">
+<h3>🎮 Game Rules</h3>
+
+<label>Game Mode</label>
+<select id="mode">
+<option value="classic">Classic Ludo</option>
+<option value="quick">Quick Game</option>
+</select>
+
+<label>Winning Rule</label>
+<select id="winning">
+<option value="all">सभी 4 गोटियाँ घर पहुँचें</option>
+<option value="one">एक गोटी घर पहुँचने पर जीत</option>
+</select>
+
+<label>Six Rule</label>
+<select id="sixRule">
+<option value="extra">6 आने पर Extra Turn</option>
+<option value="normal">6 आने पर Extra Turn नहीं</option>
+</select>
+
+<label>Safe Cells</label>
+<select id="safe">
+<option value="yes">Safe घर ON</option>
+<option value="no">Safe घर OFF</option>
+</select>
+
+<label>Game Duration</label>
+<select id="duration">
+<option value="normal">Normal</option>
+<option value="fast">Fast</option>
+</select>
+</div>
+
+<button class="start" onclick="startGame()">
+🚀 START GAME
+</button>
+
+<button class="back" onclick="location.href='index.html'">
+⬅ वापस जाएँ
+</button>
+
+</div>
+
+<script>
+let playerCount=2;
+
+function setPlayers(count,button){
+ playerCount=count;
+
+ document.querySelectorAll(".counts button")
+ .forEach(b=>b.classList.remove("active"));
+
+ button.classList.add("active");
+ makeNames();
+}
+
+function makeNames(){
+ const colors=["Red","Green","Yellow","Blue"];
+ const names=document.getElementById("names");
+
+ names.innerHTML="";
+
+ for(let i=0;i<playerCount;i++){
+  const input=document.createElement("input");
+  input.placeholder=colors[i]+" Player Name";
+  input.id="player"+i;
+  input.value=colors[i];
+  names.appendChild(input);
+ }
+}
+
+function startGame(){
+ const colors=["Red","Green","Yellow","Blue"];
+ const players=[];
+
+ for(let i=0;i<playerCount;i++){
+  const name=document.getElementById("player"+i).value.trim();
+  players.push({
+   name:name || colors[i],
+   color:colors[i]
+  });
+ }
+
+ const settings={
+  players:players,
+  music:document.getElementById("music").checked,
+  sound:document.getElementById("sound").checked,
+  vibration:document.getElementById("vibration").checked,
+  mode:document.getElementById("mode").value,
+  winning:document.getElementById("winning").value,
+  sixRule:document.getElementById("sixRule").value,
+  safe:document.getElementById("safe").value,
+  duration:document.getElementById("duration").value
+ };
+
+ localStorage.setItem("ludoSettings",JSON.stringify(settings));
+
+ location.href="board.html";
+}
+
+makeNames();
+</script>
+</body>
+</html>
